@@ -5,15 +5,13 @@ import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
 
 interface Props {
-  /** 页面标题，会自动拼上站点名 */
+  /** 页面标题，会自动拼上姓名 */
   title?: string;
   description?: string;
-  /** 详情页 / 文章页使用正文宽度 */
-  narrow?: boolean;
 }
 
-const { title, description = site.tagline, narrow = false } = Astro.props;
-const pageTitle = title ? `${title} — ${site.name}` : `${site.name} · ${site.subtitle}`;
+const { title, description = site.tagline } = Astro.props;
+const pageTitle = title ? `${title} — ${site.name}` : site.name;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'http://localhost/');
 ---
 
@@ -27,18 +25,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'http://localhost/')
     <link rel="canonical" href={canonical.href} />
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:description" content={description} />
   </head>
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
     <Header />
     <main id="main">
-      <div class:list={['container', narrow && 'narrow']}>
+      <div class="container">
         <slot />
       </div>
     </main>
     <Footer />
   </body>
 </html>
+

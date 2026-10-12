@@ -1,35 +1,10 @@
 ---
-import { site, nav } from '../data/site';
-import { withBase, isActive } from '../lib/url';
-
-const currentPath = Astro.url.pathname;
+import { site } from '../data/site';
+import { withBase } from '../lib/url';
 ---
 
 <header class="site-header">
   <div class="container">
-    <a class="brand" href={withBase('/')}>
-      {site.name}
-      <span class="brand-sub">{site.subtitle}</span>
-    </a>
-    <nav class="site-nav" aria-label="主导航">
-      <ul>
-        {
-          nav.map((item) => (
-            <li>
-              <a
-                href={item.path.startsWith('http') ? item.path : withBase(item.path)}
-                target={item.path.startsWith('http') ? '_blank' : undefined}
-                rel={item.path.startsWith('http') ? 'noopener' : undefined}
-                aria-current={
-                  item.path.startsWith('http') ? undefined : isActive(currentPath, item.path) ? 'page' : undefined
-                }
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <a class="brand" href={withBase('/')}>{site.name}</a>
   </div>
 </header>

@@ -1,7 +1,0 @@
-这是「模板类资料」的占位文件。
-
-把真实的 LaTeX 模板、Word 模板或选题模板放进 public/files/，
-然后在 src/content/resources/template-example.md 里把 file 字段改成对应路径，
-并在 title / description 中写清楚用途。
-
-—— 个人学术网站（刘昊岳）
