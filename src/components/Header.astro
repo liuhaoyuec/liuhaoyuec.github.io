@@ -17,8 +17,12 @@ const currentPath = Astro.url.pathname;
           nav.map((item) => (
             <li>
               <a
-                href={withBase(item.path)}
-                aria-current={isActive(currentPath, item.path) ? 'page' : undefined}
+                href={item.path.startsWith('http') ? item.path : withBase(item.path)}
+                target={item.path.startsWith('http') ? '_blank' : undefined}
+                rel={item.path.startsWith('http') ? 'noopener' : undefined}
+                aria-current={
+                  item.path.startsWith('http') ? undefined : isActive(currentPath, item.path) ? 'page' : undefined
+                }
               >
                 {item.label}
               </a>

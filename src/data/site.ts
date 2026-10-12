@@ -31,6 +31,7 @@ export const site = {
 
   /** 首页与联系页的对外链接；没有的项填 '' 或删除该行 */
   links: [
+    { label: '文件空间（网络存储）', url: 'https://filespace-28674.azurewebsites.net/' },
     { label: 'GitHub', url: 'https://github.com/liuhaoyuec' },
     { label: 'Google Scholar', url: '［待补充：主页链接］' },
     { label: 'ORCID', url: '［待补充：0000-0000-0000-0000］' },
@@ -43,10 +44,10 @@ export const site = {
 
   /** 页脚备注；资料区后续要接入登录与文件存储，先在此说明状态 */
   footerNote:
-    '本站为静态站点，由 Astro 构建。资料下载目前为公开链接，后续将接入账号登录与独立文件存储。',
+    '本站为静态站点，由 Astro 构建。资料下载为公开链接；需要登录的文件放在独立的「文件空间」（账号由站点管理员创建）。',
 };
 
-/** 顶部导航；path 为站内路径（不要带 base 前缀） */
+/** 顶部导航；path 为站内路径（不要带 base 前缀），以 http 开头的项按外部链接处理 */
 export const nav = [
   { label: '首页', path: '/' },
   { label: '研究方向', path: '/#research' },
@@ -55,4 +56,5 @@ export const nav = [
   { label: '笔记', path: '/notes/' },
   { label: '资料', path: '/resources/' },
   { label: '联系', path: '/contact/' },
+  { label: '文件空间', path: 'https://filespace-28674.azurewebsites.net/' },
 ];

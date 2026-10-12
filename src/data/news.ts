@@ -13,6 +13,12 @@ export const news: NewsItem[] = [
   {
     date: '2026-10-12',
     type: '公告',
+    text: '独立的「文件空间」上线：账号登录后可上传文件，并按「仅自己 / 指定账号 / 所有人」三种范围分享下载。',
+    link: 'https://filespace-28674.azurewebsites.net/',
+  },
+  {
+    date: '2026-10-12',
+    type: '公告',
     text: '个人学术网站第一版上线。',
   },
   {
