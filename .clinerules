@@ -13,6 +13,7 @@ src/
   data/news.ts            # 首页「近期动态」
   lib/url.ts              # withBase()：站内链接必须经过它（部署到子路径时才会正确）
   lib/format.ts           # 日期格式化（统一按 UTC 读，避免时区偏移）
+  lib/placeholder.ts      # isPlaceholder()：判断 ［待补充］ 内容，避免渲染成断链
   layouts/BaseLayout.astro
   components/Header.astro Footer.astro
   styles/global.css       # 全部样式，设计变量在文件顶部 :root

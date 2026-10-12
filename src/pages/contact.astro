@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
+import { isPlaceholder } from '../lib/placeholder';
 
 const email = site.info.find((item) => item.label === '邮箱')?.value ?? '';
-const hasEmail = Boolean(email) && !email.includes('待补充');
+const hasEmail = !isPlaceholder(email);
 const links = site.links.filter((link) => link.url);
 const infoItems = site.info.filter((item) => item.value && item.label !== '邮箱');
 ---
@@ -36,7 +37,7 @@ const infoItems = site.info.filter((item) => item.value && item.label !== '邮�
         {infoItems.map((item) => (
           <li>
             <span class="label">{item.label}</span>
-            <span>{item.value}</span>
+            <span class:list={[isPlaceholder(item.value) && 'placeholder-text']}>{item.value}</span>
           </li>
         ))}
       </ul>
@@ -50,15 +51,19 @@ const infoItems = site.info.filter((item) => item.value && item.label !== '邮�
           <h2>其他链接</h2>
         </div>
         <div class="link-row">
-          {links.map((link) => (
-            <a
-              href={link.url}
-              rel="me noopener"
-              target={link.url.startsWith('http') ? '_blank' : undefined}
-            >
-              {link.label}
-            </a>
-          ))}
+          {links.map((link) =>
+            isPlaceholder(link.url) ? (
+              <span class="placeholder-text">{link.label}</span>
+            ) : (
+              <a
+                href={link.url}
+                rel="me noopener"
+                target={link.url.startsWith('http') ? '_blank' : undefined}
+              >
+                {link.label}
+              </a>
+            ),
+          )}
         </div>
       </section>
     )

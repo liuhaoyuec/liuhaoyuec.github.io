@@ -6,6 +6,7 @@ import { research } from '../data/research';
 import { news } from '../data/news';
 import { withBase } from '../lib/url';
 import { formatDate } from '../lib/format';
+import { isPlaceholder } from '../lib/placeholder';
 
 const publications = (await getCollection('publications', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.year - a.data.year,
@@ -35,7 +36,7 @@ const linkItems = site.links.filter((link) => link.url);
           {infoItems.map((item) => (
             <li>
               <span class="label">{item.label}</span>
-              <span>{item.value}</span>
+              <span class:list={[isPlaceholder(item.value) && 'placeholder-text']}>{item.value}</span>
             </li>
           ))}
         </ul>
@@ -44,11 +45,22 @@ const linkItems = site.links.filter((link) => link.url);
     {
       linkItems.length > 0 && (
         <p class="links">
-          {linkItems.map((link) => (
-            <a class="link-pill" href={link.url} rel="me noopener" target={link.url.startsWith('http') ? '_blank' : undefined}>
-              {link.label}
-            </a>
-          ))}
+          {linkItems.map((link) =>
+            isPlaceholder(link.url) ? (
+              <span class="link-pill placeholder" title="待补充链接">
+                {link.label}
+              </span>
+            ) : (
+              <a
+                class="link-pill"
+                href={link.url}
+                rel="me noopener"
+                target={link.url.startsWith('http') ? '_blank' : undefined}
+              >
+                {link.label}
+              </a>
+            ),
+          )}
         </p>
       )
     }

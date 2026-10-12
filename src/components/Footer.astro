@@ -1,9 +1,10 @@
 ---
 import { site, nav } from '../data/site';
 import { withBase } from '../lib/url';
+import { isPlaceholder } from '../lib/placeholder';
 
 const year = new Date().getFullYear();
-const externalLinks = site.links.filter((link) => link.url && /^https?:/i.test(link.url));
+const externalLinks = site.links.filter((link) => !isPlaceholder(link.url) && /^https?:/i.test(link.url));
 ---
 
 <footer class="site-footer">

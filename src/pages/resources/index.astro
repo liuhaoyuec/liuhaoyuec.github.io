@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { withBase } from '../../lib/url';
 import { formatDate } from '../../lib/format';
+import { isPlaceholder } from '../../lib/placeholder';
 
 const resources = (await getCollection('resources', ({ data }) => !data.draft)).sort((a, b) => {
   const da = a.data.updated?.getTime() ?? 0;
@@ -36,7 +37,7 @@ const categories = [...new Set(resources.map((item) => item.data.category))];
             .map((item) => {
               const link = item.data.file
                 ? withBase(item.data.file)
-                : item.data.url && !item.data.url.includes('待补充')
+                : !isPlaceholder(item.data.url)
                   ? item.data.url
                   : '';
               const external = /^https?:/i.test(link);

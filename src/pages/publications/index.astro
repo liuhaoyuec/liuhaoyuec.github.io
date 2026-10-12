@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { site } from '../../data/site';
+import { isPlaceholder } from '../../lib/placeholder';
 
 const entries = (await getCollection('publications', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.year - a.data.year || a.data.title.localeCompare(b.data.title),
@@ -14,12 +15,10 @@ const items = await Promise.all(
 
 const years = [...new Set(items.map((item) => item.entry.data.year))];
 const usableLinks = (links: { label: string; url: string }[]) =>
-  links.filter((link) => link.url && !link.url.includes('待补充'));
+  links.filter((link) => !isPlaceholder(link.url));
 
 // 若 site.ts 里填了 Google Scholar 链接，就在页首显示
-const scholar = site.links.find(
-  (link) => link.label.includes('Scholar') && link.url && !link.url.includes('待补充'),
-);
+const scholar = site.links.find((link) => link.label.includes('Scholar') && !isPlaceholder(link.url));
 ---
 
 <BaseLayout title="学术成果" description="论文、预印本与其他学术成果列表">

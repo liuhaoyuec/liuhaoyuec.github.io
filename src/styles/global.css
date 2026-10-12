@@ -259,6 +259,18 @@ main { flex: 1; padding: 2.75rem 0 4rem; }
   background: var(--surface);
 }
 .link-pill:hover { text-decoration: none; border-color: var(--accent); }
+.link-pill.placeholder {
+  color: var(--muted);
+  border-style: dashed;
+  cursor: default;
+}
+
+/* 占位文字（未填写的真实信息）用虚线标注，便于一眼看出还要补什么 */
+.placeholder-text {
+  color: var(--muted);
+  text-decoration: underline dashed;
+  text-underline-offset: 4px;
+}
 
 /* ---------- 信息表 ---------- */
 
