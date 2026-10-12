@@ -1,0 +1,58 @@
+# 个人学术网站 · 项目说明（给 Cline 的规则）
+
+站点：刘昊岳的个人学术网站。技术栈：Astro 5 + 静态生成（无其他运行时依赖）。
+Node 版本：本机为 Node 20，因此**不要**把 Astro 升到 6/7（它们要求 Node ≥ 22.12）。
+
+## 目录结构
+
+```
+astro.config.mjs          # site / base 配置，base 可用环境变量 BASE_PATH 覆盖
+src/
+  data/site.ts            # 姓名、身份、邮箱、链接、导航、页脚文案（全站文字入口）
+  data/research.ts        # 首页「研究方向」卡片
+  data/news.ts            # 首页「近期动态」
+  lib/url.ts              # withBase()：站内链接必须经过它（部署到子路径时才会正确）
+  lib/format.ts           # 日期格式化（统一按 UTC 读，避免时区偏移）
+  layouts/BaseLayout.astro
+  components/Header.astro Footer.astro
+  styles/global.css       # 全部样式，设计变量在文件顶部 :root
+  content.config.ts       # 四个内容集合的字段定义（schema）
+  content/projects/*.md       # 项目，文件名 = /projects/<文件名>/
+  content/publications/*.md   # 学术成果，汇总页 /publications/
+  content/notes/*.md          # 笔记，文件名 = /notes/<文件名>/
+  content/resources/*.md      # 资料，汇总页 /resources/（文件放 public/files/）
+  pages/                  # index / projects / publications / notes / resources / contact / 404
+public/                   # favicon.svg、files/（下载文件）、images/（正文图片）
+```
+
+## 命令
+
+```bash
+npm run dev      # 本地预览 http://localhost:4321
+npm run build    # 构建到 dist/
+npm run preview  # 预览构建结果 http://localhost:4321
+```
+
+部署到 GitHub Pages 时由 `.github/workflows/deploy.yml` 自动构建发布（推送 main 即触发）。
+
+## 常见更新怎么做
+
+- **加一篇文章**：在 `src/content/notes/` 新建 `<英文短横线文件名>.md`，frontmatter 填 `title / date / summary / tags`，
+  正文写 Markdown。文件名即网址，别用中文或空格。
+- **更新这个项目**：改 `src/content/projects/<文件名>.md` 的 frontmatter（`status / period / role / tags / links`）与正文；
+  `order` 越小越靠前。
+- **添加论文**：在 `src/content/publications/` 新建 `.md`，必填 `title / authors / year`，
+  可选 `summary / venue / type / status / keywords / links / featured`（`featured: true` 会出现在首页「代表成果」）。
+- **加资料**：把文件放进 `public/files/`，在 `src/content/resources/` 新建 `.md` 并填 `file: /files/<文件名>`；
+  外部链接（网盘、GitHub Release）填 `url` 字段。
+- **改个人信息 / 导航 / 页脚**：只改 `src/data/site.ts`。
+- **改研究方向或动态**：`src/data/research.ts`、`src/data/news.ts`。
+- **调样式**：只改 `src/styles/global.css` 顶部变量（颜色、行宽、字体栈）；移动端断点在该文件末尾。
+
+## 约定
+
+- 占位文字统一写成 `［待补充：……］`，拿到真实信息后直接替换；用 `grep -rn 待补充 src/` 可一次找出全部待补内容。
+- 草稿内容在 frontmatter 里写 `draft: true`，不会出现在列表与构建产物中。
+- 新增页内链接一律用 `withBase('/xxx/')`，不要写死 `/xxx/`（否则部署到子路径会 404）。
+- 修改内容后跑一次 `npm run build` 确认没有 schema 报错，再提交。
+- 后续扩展（账号登录、约 100GB 文件存储）属于第二阶段，优先保持静态站点可独立构建。

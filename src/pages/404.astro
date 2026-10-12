@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { nav } from '../data/site';
+import { withBase } from '../lib/url';
+---
+
+<BaseLayout title="页面不存在" description="找不到该页面">
+  <h1>404 · 页面不存在</h1>
+  <p class="lede">你访问的地址没有对应内容，可能是链接写错了，或者内容还没写。</p>
+  <div class="link-row">
+    {nav.map((item) => <a href={withBase(item.path)}>{item.label}</a>)}
+  </div>
+</BaseLayout>

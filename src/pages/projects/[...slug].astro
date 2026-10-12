@@ -1,0 +1,55 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const links = project.data.links.filter((link) => link.url && !link.url.includes('待补充'));
+---
+
+<BaseLayout title={project.data.title} description={project.data.summary} narrow>
+  <p class="back-link"><a href={withBase('/projects/')}>← 返回项目列表</a></p>
+
+  <header class="post-header">
+    <h1>{project.data.title}</h1>
+    <div class="entry-meta">
+      <span class="badge">{project.data.status}</span>
+      {project.data.period && <span>{project.data.period}</span>}
+      {project.data.role && <span>角色：{project.data.role}</span>}
+    </div>
+    <p class="lede">{project.data.summary}</p>
+    {
+      project.data.tags.length > 0 && (
+        <ul class="tags">
+          {project.data.tags.map((tag) => (
+            <li>{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+    {
+      links.length > 0 && (
+        <div class="btn-row">
+          {links.map((link) => (
+            <a class="btn ghost" href={link.url} rel="noopener" target="_blank">
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </header>
+
+  <article class="prose">
+    <Content />
+  </article>
+</BaseLayout>

@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/url';
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order || b.data.period.localeCompare(a.data.period),
+);
+---
+
+<BaseLayout title="项目" description="研究项目与工程实践列表">
+  <div class="section-head">
+    <h1>项目</h1>
+    <span class="muted">{projects.length} 项</span>
+  </div>
+  <p class="lede">
+    这里列出我正在做和已经完成的项目，点击标题查看具体内容。
+  </p>
+
+  <ul class="entry-list">
+    {
+      projects.map((project) => (
+        <li>
+          <h2 class="entry-title">
+            <a href={withBase(`/projects/${project.id}/`)}>{project.data.title}</a>
+          </h2>
+          <div class="entry-meta">
+            <span class="badge">{project.data.status}</span>
+            {project.data.period && <span>{project.data.period}</span>}
+            {project.data.role && <span>角色：{project.data.role}</span>}
+          </div>
+          <p class="entry-body">{project.data.summary}</p>
+          {project.data.tags.length > 0 && (
+            <ul class="tags">
+              {project.data.tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    projects.length === 0 && (
+      <p class="muted">还没有项目内容。在 src/content/projects/ 下新增 Markdown 文件即可。</p>
+    )
+  }
+</BaseLayout>

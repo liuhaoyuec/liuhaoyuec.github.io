@@ -1,0 +1,102 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../data/site';
+
+const entries = (await getCollection('publications', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.year - a.data.year || a.data.title.localeCompare(b.data.title),
+);
+
+// 预先渲染每个条目的正文（用作摘要 / 备注）
+const items = await Promise.all(
+  entries.map(async (entry) => ({ entry, Content: (await render(entry)).Content })),
+);
+
+const years = [...new Set(items.map((item) => item.entry.data.year))];
+const usableLinks = (links: { label: string; url: string }[]) =>
+  links.filter((link) => link.url && !link.url.includes('待补充'));
+
+// 若 site.ts 里填了 Google Scholar 链接，就在页首显示
+const scholar = site.links.find(
+  (link) => link.label.includes('Scholar') && link.url && !link.url.includes('待补充'),
+);
+---
+
+<BaseLayout title="学术成果" description="论文、预印本与其他学术成果列表">
+  <div class="section-head">
+    <h1>学术成果</h1>
+    <span class="muted">{entries.length} 项</span>
+  </div>
+  <p class="lede">
+    按年份从新到旧排列。
+    {
+      scholar && (
+        <>
+          完整列表可参考{' '}
+          <a href={scholar.url} rel="me noopener" target="_blank">
+            Google Scholar
+          </a>
+          。
+        </>
+      )
+    }
+  </p>
+
+  {
+    years.map((year) => (
+      <section class="section">
+        <div class="section-head">
+          <h2>{year}</h2>
+        </div>
+        <ul class="entry-list">
+          {items
+            .filter((item) => item.entry.data.year === year)
+            .map(({ entry, Content }) => (
+              <li>
+                <h3 class="entry-title">{entry.data.title}</h3>
+                <div class="entry-meta">
+                  <span>{entry.data.authors}</span>
+                  {entry.data.venue && <span class="muted">{entry.data.venue}</span>}
+                  <span class="badge plain">{entry.data.type}</span>
+                  {entry.data.status !== entry.data.type && (
+                    <span class="badge">{entry.data.status}</span>
+                  )}
+                </div>
+                {entry.data.summary && <p class="entry-body">{entry.data.summary}</p>}
+                {entry.body?.trim() && (
+                  <details class="abstract">
+                    <summary>摘要 / 备注</summary>
+                    <div class="prose abstract-body">
+                      <Content />
+                    </div>
+                  </details>
+                )}
+                {usableLinks(entry.data.links).length > 0 && (
+                  <div class="link-row">
+                    {usableLinks(entry.data.links).map((link) => (
+                      <a href={link.url} rel="noopener" target="_blank">
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+                {entry.data.keywords.length > 0 && (
+                  <ul class="tags">
+                    {entry.data.keywords.map((keyword) => (
+                      <li>{keyword}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+        </ul>
+      </section>
+    ))
+  }
+
+  {
+    entries.length === 0 && (
+      <p class="muted">还没有成果条目。在 src/content/publications/ 下新增 Markdown 文件即可。</p>
+    )
+  }
+</BaseLayout>

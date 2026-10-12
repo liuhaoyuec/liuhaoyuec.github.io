@@ -1,0 +1,53 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/url';
+import { formatDateCN } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+
+const allNotes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+const index = allNotes.findIndex((item) => item.id === note.id);
+const newer = index > 0 ? allNotes[index - 1] : undefined;
+const older = index >= 0 && index < allNotes.length - 1 ? allNotes[index + 1] : undefined;
+---
+
+<BaseLayout title={note.data.title} description={note.data.summary} narrow>
+  <p class="back-link"><a href={withBase('/notes/')}>← 返回笔记列表</a></p>
+
+  <header class="post-header">
+    <h1>{note.data.title}</h1>
+    <div class="entry-meta">
+      <span>{formatDateCN(note.data.date)}</span>
+    </div>
+    {note.data.tags.length > 0 && (
+      <ul class="tags">
+        {note.data.tags.map((tag) => (
+          <li>{tag}</li>
+        ))}
+      </ul>
+    )}
+  </header>
+
+  <article class="prose">
+    <Content />
+  </article>
+
+  <hr />
+
+  <nav class="entry-meta" aria-label="相邻笔记">
+    {older && <a href={withBase(`/notes/${older.id}/`)}>← 上一篇：{older.data.title}</a>}
+    {newer && <a href={withBase(`/notes/${newer.id}/`)}>下一篇：{newer.data.title} →</a>}
+  </nav>
+</BaseLayout>
