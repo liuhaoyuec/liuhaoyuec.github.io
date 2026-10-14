@@ -26,7 +26,7 @@ npm run preview # 本地预览 dist/
 | 项目 | `src/content/projects/<文件名>.md`（文件名即网址） |
 | 学术成果 | `src/content/publications/<文件名>.md` |
 | 笔记 | `src/content/notes/<文件名>.md`（文件名即网址） |
-| 资料 | 文件放 `public/files/`，条目写 `src/content/resources/<文件名>.md` |
+| 首页「讲义与资料」 | 文件放 `public/files/`，条目写 `src/data/site.ts` 的 `resources` 数组 |
 | 配色 / 版式 / 字体 | `src/styles/global.css` 顶部变量区 |
 
 约定：占位文字统一是 `［待补充：……］`（`grep -rn 待补充 src/` 可全部找出）；

@@ -14,3 +14,19 @@ export const site = {
     url: 'https://filespace-28674.azurewebsites.net/',
   },
 };
+
+/**
+ * 首页「讲义与资料」列表。
+ * 文件放在 public/files/ 下，这里写站内路径（以 /files/ 开头，不要写完整域名）。
+ * 换了 PDF 记得同步更新 pages（页数）——页数无法在构建时自动读取，是手写的。
+ */
+export const resources = [
+  {
+    title: '模论与线性代数讲义',
+    summary:
+      '用 F[x]-模与范畴论的语言看线性代数：从坐标矩阵到有理标准型、Jordan 型、谱投影与 Kalman 能控性。',
+    file: '/files/module-linear-algebra-notes.pdf',
+    date: '2026-10-14',
+    pages: 51,
+  },
+];

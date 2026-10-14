@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { site } from '../data/site';
+import { site, resources } from '../data/site';
+import { withBase } from '../lib/url';
 ---
 
 <BaseLayout>
@@ -11,4 +12,25 @@ import { site } from '../data/site';
       <a class="btn" href={site.fileSpace.url}>{site.fileSpace.label}</a>
     </p>
   </section>
+
+  {resources.length > 0 && (
+    <section class="resources" aria-labelledby="resources-title">
+      <h2 id="resources-title">讲义与资料</h2>
+      <ul class="resource-list">
+        {resources.map((item) => (
+          <li class="resource-item">
+            <p class="resource-head">
+              <a href={withBase(item.file)} target="_blank" rel="noopener">
+                {item.title}
+              </a>
+              <span class="resource-meta">
+                {item.date} · PDF · {item.pages} 页
+              </span>
+            </p>
+            <p class="resource-summary">{item.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </BaseLayout>
