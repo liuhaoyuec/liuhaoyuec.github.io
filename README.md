@@ -28,9 +28,40 @@ npm run preview # 本地预览 dist/
 | 笔记 | `src/content/notes/<文件名>.md`（文件名即网址） |
 | 首页「讲义与资料」 | 文件放 `public/files/`，条目写 `src/data/site.ts` 的 `resources` 数组 |
 | 配色 / 版式 / 字体 | `src/styles/global.css` 顶部变量区 |
+| 首页背景图 | `public/images/hero-night*.webp`；原始图放 `design/hero-source.png`，见下文「换背景图」 |
 
 约定：占位文字统一是 `［待补充：……］`（`grep -rn 待补充 src/` 可全部找出）；
 草稿把 frontmatter 的 `draft` 设为 `true` 就不会发布；笔记正文支持 Markdown 表格、代码块、图片。
+
+## 换背景图
+
+首页是「一张主视觉 + 玻璃面板」的结构，背景素材共 4 个文件，全部由脚本生成：
+
+| 文件 | 用途 |
+| --- | --- |
+| `public/images/hero-night.webp` | 桌面完整构图（1672×940） |
+| `public/images/hero-night-1280.webp` | 桌面小尺寸 |
+| `public/images/hero-night-mobile.webp` | 手机竖构图（从原图右侧裁出人物） |
+| `public/images/hero-lqip.webp` | 加载前的模糊占位色块 |
+
+换图步骤：
+
+1. 把新原图放到 `design/hero-source.png`（或任意路径）。
+2. 运行脚本重新生成 4 个 WebP：
+   ```bash
+   ./scripts/prepare-hero-images.sh                    # 用默认原图
+   ./scripts/prepare-hero-images.sh 新背景图.png        # 用指定原图
+   ```
+   脚本需要 `ffmpeg`（带 libwebp）。桌面版输出固定为 1672×940，构图不合适时改脚本里的
+   `scale` 参数，并在 `src/styles/global.css` 里调整 `.home-hero h1` 附近的文字遮罩。
+3. 手机版裁切由脚本开头的 `MOBILE_CROP=宽:高:x:y` 控制。先找到新图中人物面部的像素坐标，
+   再调整裁切窗口；也可临时覆盖：`MOBILE_CROP=700:940:850:0 ./scripts/prepare-hero-images.sh`。
+   裁完后用浏览器手机模式确认人物面部与按钮都在首屏内，必要时微调 CSS 中
+   `.hero-media img { object-position: ... }`（手机断点在文件末尾 `max-width: 900px`）。
+4. 运行 `npm run build`，本地 `npm run preview` 检查桌面与手机效果后再提交。
+
+原始大图只保存在 `design/` 里，不进入线上构建产物；若不想把原图提交到 Git，可在 `.gitignore`
+中忽略 `design/hero-source.png`。
 
 ## 部署
 

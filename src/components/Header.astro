@@ -4,7 +4,25 @@ import { withBase } from '../lib/url';
 ---
 
 <header class="site-header">
-  <div class="container">
-    <a class="brand" href={withBase('/')}>{site.name}</a>
+  <div class="container header-inner">
+    <a class="brand" href={withBase('/')}>
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        {site.name}
+        <small>Academic</small>
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a class="nav-link nav-archive" href={withBase('/#resources')}>讲义与资料</a>
+      <a
+        class="nav-link nav-space"
+        href={site.fileSpace.url}
+        target="_blank"
+        rel="noopener"
+      >
+        {site.fileSpace.label}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </nav>
   </div>
 </header>

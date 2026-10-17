@@ -8,33 +8,43 @@ interface Props {
   /** 页面标题，会自动拼上姓名 */
   title?: string;
   description?: string;
+  /** 额外的 body 类名，首页用 home 走全屏主视觉布局 */
+  bodyClass?: string;
 }
 
-const { title, description = site.tagline } = Astro.props;
+const { title, description = site.tagline, bodyClass = '' } = Astro.props;
 const pageTitle = title ? `${title} — ${site.name}` : site.name;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'http://localhost/');
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="no-js">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#060812" />
     <link rel="canonical" href={canonical.href} />
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
+    <slot name="head" />
+    <!-- 在首次绘制前标记 JS 可用，滚动浮现动画才会启用；禁用 JS 时内容照常可见 -->
+    <script is:inline>document.documentElement.classList.replace('no-js', 'js');</script>
   </head>
-  <body>
+  <body class={bodyClass}>
     <a class="skip-link" href="#main">跳到主要内容</a>
     <Header />
     <main id="main">
-      <div class="container">
-        <slot />
-      </div>
+      <slot />
     </main>
     <Footer />
+    <script is:inline>
+      // 页眉滚过首屏后加深底色
+      const header = document.querySelector('.site-header');
+      const syncHeader = () => header.classList.toggle('is-scrolled', window.scrollY > 24);
+      syncHeader();
+      window.addEventListener('scroll', syncHeader, { passive: true });
+    </script>
   </body>
 </html>
-
