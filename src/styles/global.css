@@ -106,21 +106,10 @@ body:not(.home) main { padding: 8.5rem 0 6rem; }
   flex: none;
 }
 .brand-text {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
   font-family: var(--font-serif);
-  font-size: 1.08rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-}
-.brand-text small {
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-size: 1.02rem;
   font-weight: 500;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--faint);
+  letter-spacing: 0.12em;
 }
 .brand:hover .brand-mark { box-shadow: 0 0 24px rgba(120, 190, 255, 0.75); }
 
@@ -268,25 +257,22 @@ body:not(.home) main { padding: 8.5rem 0 6rem; }
 }
 
 .home-hero h1 {
-  margin: 0 0 1.1rem;
-  font-family: var(--font-sans);
-  font-size: clamp(3.4rem, 7.2vw, 6rem);
-  font-weight: 700;
-  line-height: 1.06;
-  letter-spacing: 0.09em;
-  background: linear-gradient(115deg, #ffffff 6%, #eef1ff 32%, #c6d0ff 56%,
-    #b6a4ff 78%, #8fe3ff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 10px 34px rgba(96, 78, 220, 0.38));
+  margin: 0 0 0.9rem;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.32;
+  letter-spacing: 0.14em;
+  color: #f0f3ff;
+  text-shadow: 0 2px 26px rgba(96, 78, 220, 0.45);
 }
 
 .tagline {
-  max-width: 27rem;
+  max-width: 26rem;
   color: #c8d0ef;
-  font-size: clamp(1rem, 1.4vw, 1.12rem);
-  letter-spacing: 0.04em;
+  font-size: clamp(1rem, 1.4vw, 1.1rem);
+  line-height: 1.9;
+  letter-spacing: 0.06em;
 }
 
 .hero-actions {
@@ -641,8 +627,8 @@ body:not(.home) main { padding: 8.5rem 0 6rem; }
     max-width: none;
     padding: 42svh 0 calc(4.8rem + env(safe-area-inset-bottom, 0px));
   }
-  .home-hero h1 { font-size: clamp(3rem, 14vw, 4.4rem); }
-  .tagline { max-width: 24rem; }
+  .home-hero h1 { font-size: clamp(1.9rem, 8.4vw, 2.3rem); letter-spacing: 0.12em; }
+  .tagline { max-width: 22rem; }
   .scroll-cue { display: none; }
 
   .resource-list { grid-template-columns: 1fr; }
@@ -661,9 +647,9 @@ body:not(.home) main { padding: 8.5rem 0 6rem; }
 
   .hero-copy { padding-bottom: calc(4.2rem + env(safe-area-inset-bottom, 0px)); }
   .eyebrow { font-size: 0.64rem; letter-spacing: 0.28em; }
-  .home-hero h1 { font-size: clamp(2.9rem, 15vw, 3.9rem); letter-spacing: 0.07em; }
-  .tagline { font-size: 0.98rem; }
-  .hero-actions { margin-top: 1.7rem; }
+  .home-hero h1 { font-size: clamp(1.8rem, 8.2vw, 2.15rem); letter-spacing: 0.1em; }
+  .tagline { font-size: 0.98rem; line-height: 1.95; }
+  .hero-actions { margin-top: 2rem; }
   .btn { padding: 0.74rem 1.3rem; font-size: 0.94rem; }
   .hero-note { margin-top: 1.5rem; font-size: 0.72rem; letter-spacing: 0.1em; }
 

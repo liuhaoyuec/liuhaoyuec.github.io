@@ -1,6 +1,6 @@
-# 刘昊岳 · 个人学术网站
+# 昊岳的小屋
 
-用 [Astro](https://astro.build) 构建的静态个人学术网站。内容全部放在 Markdown 与数据文件里，改内容不需要碰页面代码。
+用 [Astro](https://astro.build) 构建的静态个人网站。内容全部放在 Markdown 与数据文件里，改内容不需要碰页面代码。
 
 ## 本地预览
 

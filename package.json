@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "description": "刘昊岳的个人学术网站（Astro 静态站点）",
+  "description": "昊岳的小屋：刘昊岳的个人网站（Astro 静态站点）",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
