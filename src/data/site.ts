@@ -22,6 +22,14 @@ export const site = {
  */
 export const resources = [
   {
+    title: '从泛代数到现代 Code Agent：大模型、Transformer、MCP 与 Skill 的数学与工程原理',
+    summary:
+      '以多类泛代数与余代数为主骨架，串起 Code Agent 的闭环本质、LLM 的概率测度与受限解码、Transformer 的注意力／RoPE／KV Cache 动力学，以及 MCP 原子算子与 Skill 三级渐进式披露的正交解耦机制。',
+    file: '/files/从泛代数到现代CodeAgent_刘昊岳.pdf',
+    date: '2026-10-17',
+    pages: 16,
+  },
+  {
     title: '环的家族：环论结构的「增量公理」网状依赖',
     summary:
       '与其平铺罗列五六十种“××环”，不如只记一个差分格式：子环类 = 父环类 + Δ 约束算子；把常见环类去重重组为一条基础根系与四大主干，配四张网格图给出全局依赖。',
