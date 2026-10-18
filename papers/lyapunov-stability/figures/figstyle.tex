@@ -1,0 +1,27 @@
+% 四张示意图共用的字体、颜色与 TikZ 设置
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setmainfont{TeX Gyre Pagella}
+\setCJKmainfont{Noto Serif CJK SC}[AutoFakeSlant=0.15]
+\usepackage{unicode-math}
+\setmathfont{TeX Gyre Pagella Math}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, decorations.markings, backgrounds, fit, shapes.geometric}
+
+\definecolor{navy}{HTML}{1E3A8A}
+\definecolor{teal}{HTML}{0F766E}
+\definecolor{amber}{HTML}{B45309}
+\definecolor{softblue}{HTML}{EFF6FF}
+\definecolor{softteal}{HTML}{F0FDFA}
+\definecolor{softamber}{HTML}{FFFBEB}
+\definecolor{border}{HTML}{CBD5E1}
+\definecolor{graytext}{HTML}{5B6673}
+\definecolor{redalert}{HTML}{991B1B}
+
+\tikzset{
+  >=Latex,
+  every node/.style={font=\small},
+  block/.style={draw=navy, thick, rounded corners=3pt, fill=softblue, align=center},
+  bus/.style={thick, graytext},
+}

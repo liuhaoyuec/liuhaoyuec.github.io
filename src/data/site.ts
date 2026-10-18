@@ -22,6 +22,14 @@ export const site = {
  */
 export const resources = [
   {
+    title: '李雅普诺夫稳定性定理及其控制应用：从“不解方程判稳”到“构造控制律”',
+    summary:
+      '从状态空间系统的公理化描述出发，完整证明李雅普诺夫稳定、渐近稳定与全局渐近稳定三定理；贯通 Lyapunov 方程、LQR、CLF、Sontag 公式、反步/滑模/自适应，并给出二阶非线性闭环设计实例与仿真。',
+    file: '/files/李雅普诺夫稳定性定理及其控制应用_刘昊岳.pdf',
+    date: '2026-10-18',
+    pages: 23,
+  },
+  {
     title: '从泛代数到现代 Code Agent：大模型、Transformer、MCP 与 Skill 的数学与工程原理',
     summary:
       '以多类泛代数与余代数为主骨架，串起 Code Agent 的闭环本质、LLM 的概率测度与受限解码、Transformer 的注意力／RoPE／KV Cache 动力学，以及 MCP 原子算子与 Skill 三级渐进式披露的正交解耦机制。',
