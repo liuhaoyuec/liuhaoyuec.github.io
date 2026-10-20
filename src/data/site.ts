@@ -22,14 +22,6 @@ export const site = {
  */
 export const resources = [
   {
-    title: 'Language and Culture 第 7–8 段精读：作为「福音」的英语与南非实例',
-    summary:
-      '逐句精读课本第 7–8 段：六词旁注（endanger、apartheid 等）、英汉对照、长难句拆解与篇章结构总结；以南非种族隔离与 11 种官方语言为实例，解释英语为何既是诅咒又是福音。',
-    file: '/files/语言与文化_第7-8段精读_刘昊岳.pptx',
-    date: '2026-10-20',
-    pages: 8,
-  },
-  {
     title: '李雅普诺夫稳定性定理及其控制应用：从“不解方程判稳”到“构造控制律”',
     summary:
       '从状态空间系统的公理化描述出发，完整证明李雅普诺夫稳定、渐近稳定与全局渐近稳定三定理；贯通 Lyapunov 方程、LQR、CLF、Sontag 公式、反步/滑模/自适应，并给出二阶非线性闭环设计实例与仿真。',
