@@ -1,0 +1,757 @@
+\documentclass[UTF8, a4paper, 11pt]{ctexart}
+
+% ==================== 宏包配置 ====================
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath, amssymb, amsthm, mathtools, bm}
+\usepackage{booktabs, array, longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+\definecolor{emerald}{HTML}{50C878}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    urlcolor=blue!70!black,
+    pdftitle={相干光束合成与闭环相位锁定：从零基础到严格数学证明的完整推导讲义},
+    pdfauthor={刘昊岳}
+}
+
+% ==================== 自定义盒子环境 ====================
+\newtcolorbox{mathprep}[1][]{
+    colback=blue!4!white,
+    colframe=blue!65!black,
+    fonttitle=\bfseries,
+    title={【数学前置补习站】#1},
+    arc=2mm,
+    boxrule=0.8pt,
+    breakable
+}
+
+\newtcolorbox{derivation}[1][]{
+    colback=emerald!4!white,
+    colframe=teal!75!black,
+    fonttitle=\bfseries,
+    title={【零跳步完整推导】#1},
+    arc=2mm,
+    boxrule=0.8pt,
+    breakable
+}
+
+\newtcolorbox{proofbox}[1][]{
+    colback=orange!4!white,
+    colframe=orange!80!black,
+    fonttitle=\bfseries,
+    title={【核心定理与严格证明】#1},
+    arc=2mm,
+    boxrule=0.8pt,
+    breakable
+}
+
+\newtcolorbox{enginsight}[1][]{
+    colback=gray!6!white,
+    colframe=gray!60!black,
+    fonttitle=\bfseries,
+    title={【物理直觉与硬件映射】#1},
+    arc=2mm,
+    boxrule=0.8pt,
+    breakable
+}
+
+% ==================== 常用数学符号快捷定义 ====================
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Sone}{\mathbb{S}^1}
+\newcommand{\dd}{\mathrm{d}}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\wrap}{wrap}
+
+% ==================== 文档信息 ====================
+\title{\textbf{相干光束合成与闭环相位锁定：\\从零基础到严格数学证明的完整推导讲义}}
+\author{刘昊岳}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+本讲义针对多通道相干光束合成（CBC）与光学锁相环（OPLL）中的核心数学问题，提供一份\textbf{零跳步（Zero-Gap）}的自包含数学教程。无论读者的微积分、线性代数或非线性控制基础如何，均可通过每个章节前的“数学前置补习站”掌握所需工具，并跟随逐行批注完成从光场干涉展开、正交解调（I/Q Demodulation）、李雅普诺夫全局/局部稳定性证明，到图拉普拉斯矩阵（Graph Laplacian）特征值分析与树型拓扑收敛性的全部严格证明。
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ======================================================================
+\section{模块一：复指数光场与单探测器外差拍频的完整展开}
+% ======================================================================
+
+在光学相干合成中，我们经常看到论文直接写下总光强 $I(t) = |E(t)|^2$ 的展开式。要真正看懂为什么“单点光电探测器（PD）+ 频率标签”能够把所有通道的相位单独分离出来，我们必须先把复数模方和三角函数运算补齐。
+
+\begin{mathprep}[复数共轭、欧拉公式与三角积化和差]
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{欧拉公式（Euler's Formula）}：对于任意实数角度 $\theta \in \R$，复指数定义为：
+    \[
+        e^{i\theta} = \cos\theta + i\sin\theta, \qquad \text{其中 } i^2 = -1.
+    \]
+    将 $\theta$ 替换为 $-\theta$，由于 $\cos(-\theta)=\cos\theta$（偶函数），$\sin(-\theta)=-\sin\theta$（奇函数），得到\textbf{复共轭（Complex Conjugate）}：
+    \[
+        \left(e^{i\theta}\right)^* = e^{-i\theta} = \cos\theta - i\sin\theta.
+    \]
+    \item \textbf{用实部表示余弦}：把上面两式相加：
+    \[
+        e^{i\theta} + e^{-i\theta} = 2\cos\theta \implies \operatorname{Re}\left(e^{i\theta}\right) = \cos\theta.
+    \]
+    更一般地，对于任意复数 $z = x + iy$，有：
+    \[
+        z + z^* = 2\operatorname{Re}(z).
+    \]
+    \item \textbf{复数模的平方（Magnitude Squared）}：复数 $z$ 的模方等于它乘以自己的共轭：
+    \[
+        |z|^2 = z \cdot z^*.
+    \]
+    特别地，若 $z = A e^{i\theta}$（其中 $A > 0$ 为实数振幅），则：
+    \[
+        |z|^2 = \left(A e^{i\theta}\right)\left(A e^{-i\theta}\right) = A^2 e^{i(\theta - \theta)} = A^2 e^0 = A^2.
+    \]
+    \item \textbf{两项之和的模方公式}：设 $z_1, z_2 \in \C$，则：
+    \[
+        |z_1 + z_2|^2 = (z_1 + z_2)(z_1^* + z_2^*) = |z_1|^2 + |z_2|^2 + \underbrace{z_1 z_2^* + z_1^* z_2}_{= 2\operatorname{Re}(z_1 z_2^*)}.
+    \]
+\end{enumerate}
+\end{mathprep}
+
+\subsection{为什么纯直流（DC）单点光强会造成“相位不可辨识”？}
+
+假设没有频率标签，只有两路同频激光叠加：$E_0 = A_0 e^{i\phi_0}$，$E_1 = A_1 e^{i\phi_1}$。光电探测器测得的光强为：
+\[
+    I_{\mathrm{DC}} = |E_0 + E_1|^2 = A_0^2 + A_1^2 + 2A_0 A_1 \cos(\phi_1 - \phi_0).
+\]
+请注意这里的致命数学缺陷：
+\begin{enumerate}
+    \item \textbf{符号歧义（偶函数对称性）}：因为 $\cos(-\Delta\phi) = \cos(\Delta\phi)$，如果测得某个光强值，你根本无法区分 $\phi_1 - \phi_0 = +30^\circ$ 还是 $-30^\circ$。
+    \item \textbf{梯度消失（零斜率陷阱）}：对相位求导，$\frac{\partial I_{\mathrm{DC}}}{\partial \phi_1} = -2A_0 A_1 \sin(\phi_1 - \phi_0)$。在 $\phi_1 - \phi_0 = 0$ 或 $\pi$ 附近，导数为 $0$，灵敏度彻底消失。
+    \item \textbf{多通道混叠}：当有 $N$ 路光时，我们只有 $1$ 个实数标量 $I_{\mathrm{DC}} \in \R$，却想反推 $N-1$ 个独立相位变量 $(\phi_1, \dots, \phi_{N-1})$。从数学映射上看，从 $N-1$ 维环面 $\mathbb{T}^{N-1}$ 到 $1$ 维实数 $\R$ 的映射是高度非单射（多对一）的，不可逆！
+\end{enumerate}
+
+\subsection{引入频率标签后的总光强零跳步展开}
+
+现在，我们把第 $0$ 路设为主参考通道（中心光频为 $\omega_0$），第 $k$ 路（$k=1,2,\dots,N-1$）通过声光移频器（AOM）或铌酸锂边带调制加入独立的射频频移 $\Omega_k$：
+\[
+    E_0(t) = A_0 e^{i[\omega_0 t + \phi_0(t)]}, \qquad E_k(t) = A_k e^{i[(\omega_0 + \Omega_k)t + \phi_k(t)]}.
+\]
+总光场为：
+\[
+    E(t) = E_0(t) + \sum_{k=1}^{N-1} E_k(t).
+\]
+
+\begin{derivation}[单点探测器光强 $I(t) = |E(t)|^2$ 的逐行展开]
+根据模方定义 $|E(t)|^2 = E(t) \cdot E^*(t)$，我们将 $E(t)$ 视为两大部分之和：第一部分是 $E_0(t)$，第二部分是求和项 $S(t) = \sum_{k=1}^{N-1} E_k(t)$。
+
+\textbf{第一步：拆分主参考项与从通道集合项}
+\begin{align}
+    I(t) &= \left( E_0(t) + \sum_{k=1}^{N-1} E_k(t) \right) \left( E_0^*(t) + \sum_{j=1}^{N-1} E_j^*(t) \right) \nonumber\\
+    &= E_0(t)E_0^*(t) + \left( E_0^*(t)\sum_{k=1}^{N-1} E_k(t) + E_0(t)\sum_{k=1}^{N-1} E_k^*(t) \right) + \left(\sum_{j=1}^{N-1} E_j(t)\right)\left(\sum_{k=1}^{N-1} E_k^*(t)\right). \label{eq:step1}
+\end{align}
+注意：在最后一个括号中，为了避免求和下标混淆，我们把其中一个求和号的变量名写为 $j$，另一个写为 $k$（它们都是从 $1$ 到 $N-1$ 的哑变量）。
+
+\textbf{第二步：计算第一项（主参考直流光强）}
+\[
+    E_0(t)E_0^*(t) = A_0 e^{i(\omega_0 t + \phi_0)} \cdot A_0 e^{-i(\omega_0 t + \phi_0)} = A_0^2.
+\]
+
+\textbf{第三步：计算第二项（主参考与各从通道的外差拍频项）}
+观察式 \eqref{eq:step1} 中间的括号，里面每一项都是 $E_0^*(t)E_k(t)$ 与它的复共轭 $E_0(t)E_k^*(t)$ 之和。我们先算单个乘积 $E_k(t)E_0^*(t)$：
+\begin{align*}
+    E_k(t)E_0^*(t) &= A_k e^{i[(\omega_0 + \Omega_k)t + \phi_k]} \cdot A_0 e^{-i[\omega_0 t + \phi_0]} \\
+    &= A_0 A_k e^{i[\omega_0 t + \Omega_k t + \phi_k - \omega_0 t - \phi_0]} \\
+    &= A_0 A_k e^{i[\Omega_k t + \phi_k - \phi_0]}. \qquad \text{（光学载波频率 $\omega_0 t$ 在相减中完全抵消！）}
+\end{align*}
+利用补习站公式 $z + z^* = 2\operatorname{Re}(z)$，可得：
+\[
+    E_k(t)E_0^*(t) + E_k^*(t)E_0(t) = 2\operatorname{Re}\left\{ A_0 A_k e^{i(\Omega_k t + \phi_k - \phi_0)} \right\} = 2A_0 A_k \cos(\Omega_k t + \phi_k - \phi_0).
+\]
+因此，式 \eqref{eq:step1} 中间括号对所有 $k$ 求和的结果为：
+\[
+    I_{\text{ref-slave}}(t) = 2\sum_{k=1}^{N-1} A_0 A_k \cos(\Omega_k t + \phi_k - \phi_0).
+\]
+
+\textbf{第四步：计算第三项（从通道之间的双重求和展开）}
+将两个求和号相乘展开为 $(N-1)\times(N-1)$ 的网格求和，并按对角线（$j=k$）与非对角线（$j \neq k$）拆分：
+\begin{align*}
+    \sum_{j=1}^{N-1}\sum_{k=1}^{N-1} E_j(t)E_k^*(t) &= \underbrace{\sum_{k=1}^{N-1} E_k(t)E_k^*(t)}_{\text{对角线项 } j=k} + \underbrace{\sum_{\substack{j=1 \\ j \neq k}}^{N-1}\sum_{k=1}^{N-1} E_j(t)E_k^*(t)}_{\text{非对角线项 } j \neq k}.
+\end{align*}
+对于对角线项（$j=k$）：
+\[
+    \sum_{k=1}^{N-1} E_k(t)E_k^*(t) = \sum_{k=1}^{N-1} A_k^2.
+\]
+对于非对角线项（$j \neq k$），每一对满足 $j < k$ 的下标都会出现两次：一次是 $(j, k)$，即 $E_j E_k^*$；另一次是 $(k, j)$，即 $E_k E_j^* = (E_j E_k^*)^*$。将这两项配对相加：
+\begin{align*}
+    E_k(t)E_j^*(t) + E_j(t)E_k^*(t) &= 2\operatorname{Re}\left\{ A_j A_k e^{i[(\omega_0+\Omega_k)t + \phi_k - (\omega_0+\Omega_j)t - \phi_j]} \right\} \\
+    &= 2A_j A_k \cos\left[ (\Omega_k - \Omega_j)t + \phi_k - \phi_j \right].
+\end{align*}
+
+\textbf{第五步：汇总全部三部分}
+将第二、三、四步的结果代回式 \eqref{eq:step1}，即得到完整的单探测器光强方程：
+\[
+    \boxed{
+    \begin{aligned}
+    I(t) = {} & \underbrace{A_0^2 + \sum_{k=1}^{N-1} A_k^2}_{\text{直流分量 } I_{\mathrm{DC}}} + \underbrace{2\sum_{k=1}^{N-1} A_0 A_k \cos(\Omega_k t + \phi_k - \phi_0)}_{\text{主参考拍频有用信号 } \sum_k I_{0k}(t)} \\
+    & + \underbrace{2\sum_{1 \le j < k \le N-1} A_j A_k \cos\left[(\Omega_k - \Omega_j)t + \phi_k - \phi_j\right]}_{\text{通道间互拍串扰项 } I_{\mathrm{cross}}(t)}
+    \end{aligned}
+    }
+\]
+\end{derivation}
+
+\begin{enginsight}[为什么“单空间探测器 $\neq$ 单数学观测量”？]
+在没有频率标签时，光电探测器输出的 $I(t)$ 只是一个静态常数（$1$ 维标量）。而加上频率标签 $\Omega_1, \dots, \Omega_{N-1}$ 后，$I(t)$ 是一个随时间高速振荡的波形。根据傅里叶分析，不同频率的余弦波 $\cos(\Omega_k t)$ 在时间积分下是\textbf{彼此正交}的！因此，一根同轴电缆输出的电压信号 $I(t)$ 在频域里同时装下了 $N-1$ 个互不干扰的复数信封 $\{Z_1, \dots, Z_{N-1}\}$。这就是“用时间/频率带宽换取空间探测器数量”的本质。
+\end{enginsight}
+
+% ======================================================================
+\section{模块二：I/Q 正交解调与目标相位旋转的零跳步推导}
+% ======================================================================
+
+假设我们已经合理规划了频率 $\Omega_k$（具体规划规则见模块三），使得在频率 $\Omega_k$ 处只有主参考与第 $k$ 路的拍频信号：
+\[
+    I_{0k}(t) = 2A_0 A_k \cos(\Omega_k t + \phi_k - \phi_0).
+\]
+在 FPGA 或模拟电路中，我们如何把里面的相位差 $\phi_k - \phi_0$ 无歧义地解算出来？这就需要\textbf{正交解调（I/Q Demodulation）}。
+
+\begin{mathprep}[三角积化和差公式与低通滤波器（LPF）的数学作用]
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{余弦和角与差角公式}：
+    \begin{align*}
+        \cos(A + B) &= \cos A \cos B - \sin A \sin B, \\
+        \cos(A - B) &= \cos A \cos B + \sin A \sin B.
+    \end{align*}
+    两式相加，得到\textbf{余弦乘余弦的积化和差公式}：
+    \[
+        \cos A \cos B = \frac{1}{2}\left[ \cos(A - B) + \cos(A + B) \right].
+    \]
+    \item \textbf{正弦差角与和角公式}：
+    \begin{align*}
+        \sin(A - B) &= \sin A \cos B - \cos A \sin B, \\
+        \sin(A + B) &= \sin A \cos B + \cos A \sin B.
+    \end{align*}
+    用第一式减第二式，得到\textbf{余弦乘正弦的积化和差公式}：
+    \[
+        \begin{aligned}
+        \cos A \sin B &= \frac{1}{2}\left[ \sin(A + B) - \sin(A - B) \right], \\
+        -\cos A \sin B &= \frac{1}{2}\left[ \sin(A - B) - \sin(A + B) \right].
+        \end{aligned}
+    \]
+    \item \textbf{低通滤波器（LPF）的数学等价}：
+    如果一个信号由“慢变的基带信号（近直流）”和“高频振荡项（如 $\cos(2\Omega_k t)$）”相加而成，经过截止频率远小于 $\Omega_k$ 的低通滤波器后，所有高频振荡项在一个周期内的积分平均为 $0$，被彻底滤除；而慢变项保持不变：
+    \[
+        \operatorname{LPF}\left\{ \text{慢变项} + \cos(2\Omega_k t + \cdots) \right\} = \text{慢变项}.
+    \]
+\end{enumerate}
+\end{mathprep}
+
+\subsection{I 路与 Q 路混频解调推导}
+
+\begin{derivation}[从混频乘法到复观测量 $Z_k = X_k + iY_k$]
+令 $A = \Omega_k t + \phi_k - \phi_0$，$B = \Omega_k t$。注意此时：
+\[
+    A - B = (\Omega_k t + \phi_k - \phi_0) - \Omega_k t = \phi_k - \phi_0, \qquad A + B = 2\Omega_k t + \phi_k - \phi_0.
+\]
+
+\textbf{第一步：计算同相支路（In-phase，简称 I 路）$X_k$}
+将探测器信号乘以本地参考余弦本振 $\cos(\Omega_k t)$：
+\begin{align*}
+    I_{0k}(t) \cdot \cos(\Omega_k t) &= 2A_0 A_k \cos(\underbrace{\Omega_k t + \phi_k - \phi_0}_{A}) \cos(\underbrace{\Omega_k t}_{B}) \\
+    &= 2A_0 A_k \cdot \frac{1}{2}\left[ \cos(A - B) + \cos(A + B) \right] \quad \text{（代入积化和差公式）}\\
+    &= A_0 A_k \cos(\phi_k - \phi_0) + A_0 A_k \cos(2\Omega_k t + \phi_k - \phi_0).
+\end{align*}
+将上式送入低通滤波器（LPF），二倍频项 $2\Omega_k t$ 以及其他通道频率 $\Omega_m t$ 全部被滤除，得到：
+\[
+    X_k = \operatorname{LPF}\left\{ I(t)\cos(\Omega_k t) \right\} = G_k \cos(\phi_k - \phi_0), \qquad \text{其中 } G_k = A_0 A_k > 0.
+\]
+
+\textbf{第二步：计算正交支路（Quadrature，简称 Q 路）$Y_k$}
+将探测器信号乘以本地正交本振 $-\sin(\Omega_k t)$（注意负号的作用！）：
+\begin{align*}
+    I_{0k}(t) \cdot \left(-\sin(\Omega_k t)\right) &= 2A_0 A_k \left[ -\cos(\underbrace{\Omega_k t + \phi_k - \phi_0}_{A}) \sin(\underbrace{\Omega_k t}_{B}) \right] \\
+    &= 2A_0 A_k \cdot \frac{1}{2}\left[ \sin(A - B) - \sin(A + B) \right] \quad \text{（代入积化和差公式）}\\
+    &= A_0 A_k \sin(\phi_k - \phi_0) - A_0 A_k \sin(2\Omega_k t + \phi_k - \phi_0).
+\end{align*}
+同样经过低通滤波器（LPF）滤除 $2\Omega_k t$ 高频项，得到：
+\[
+    Y_k = \operatorname{LPF}\left\{ -I(t)\sin(\Omega_k t) \right\} = G_k \sin(\phi_k - \phi_0).
+\]
+
+\textbf{第三步：合成复数观测量 $Z_k$}
+把 $X_k$ 作为实部，$Y_k$ 作为虚部，利用欧拉公式合并：
+\[
+    \boxed{
+    Z_k = X_k + iY_k = G_k\left[\cos(\phi_k - \phi_0) + i\sin(\phi_k - \phi_0)\right] = G_k e^{i(\phi_k - \phi_0)}.
+    }
+\]
+\end{derivation}
+
+\subsection{任意目标相位分布的数字旋转与 \texorpdfstring{$\operatorname{atan2}$}{atan2} 误差提取}
+
+如果我们的目标是让第 $k$ 路相对于主参考锁在任意指定角度 $\theta_k^\star$（例如用于光束偏转或涡旋光束赋形），最优雅的做法不是在解算出相位后再去减 $\theta_k^\star$（那样容易在 $\pm\pi$ 跳变处引发加减法越界），而是\textbf{直接在复平面上把观测量 $Z_k$ 顺时针旋转 $\theta_k^\star$}！
+
+\begin{derivation}[复数旋转 $\widetilde{Z}_k = Z_k e^{-i\theta_k^\star}$ 的实部虚部展开与 FPGA 实现公式]
+设目标相对相位为 $\theta_k^\star \in (-\pi, \pi]$。我们将复观测量 $Z_k$ 乘以复旋转因子 $e^{-i\theta_k^\star}$：
+\[
+    \widetilde{Z}_k = Z_k e^{-i\theta_k^\star}.
+\]
+\textbf{方式一：从复指数角度看（理论证明）}
+\[
+    \widetilde{Z}_k = \left(G_k e^{i(\phi_k - \phi_0)}\right) e^{-i\theta_k^\star} = G_k e^{i(\phi_k - \phi_0 - \theta_k^\star)} = G_k e^{i e_k},
+\]
+其中相位误差定义为：
+\[
+    e_k \triangleq \phi_k - \phi_0 - \theta_k^\star \pmod{2\pi}.
+\]
+根据欧拉公式，$\widetilde{Z}_k$ 的实部和虚部分别为：
+\[
+    \operatorname{Re}\widetilde{Z}_k = G_k \cos e_k, \qquad \operatorname{Im}\widetilde{Z}_k = G_k \sin e_k.
+\]
+
+\textbf{方式二：从实数乘法角度看（FPGA 硬件实现）}
+在数字电路中，我们手里只有解调出来的两个实数寄存器 $X_k, Y_k$，以及预先算好的常数 $\cos\theta_k^\star, \sin\theta_k^\star$。我们将 $(X_k + iY_k)(\cos\theta_k^\star - i\sin\theta_k^\star)$ 按复数乘法展开（注意 $i^2 = -1$）：
+\begin{align*}
+    \widetilde{Z}_k &= (X_k + iY_k)(\cos\theta_k^\star - i\sin\theta_k^\star) \\
+    &= X_k\cos\theta_k^\star - i X_k\sin\theta_k^\star + i Y_k\cos\theta_k^\star - i^2 Y_k\sin\theta_k^\star \\
+    &= \underbrace{\left(X_k\cos\theta_k^\star + Y_k\sin\theta_k^\star\right)}_{\operatorname{Re}\widetilde{Z}_k} + i\underbrace{\left(Y_k\cos\theta_k^\star - X_k\sin\theta_k^\star\right)}_{\operatorname{Im}\widetilde{Z}_k}.
+\end{align*}
+因此，在 FPGA 中只需 $4$ 个乘法器和 $2$ 个加减法器即可算出旋转后的 I/Q 分量，再送入 CORDIC IP 核计算四象限反正切函数 $\operatorname{atan2}$：
+\[
+    \boxed{
+    e_k = \operatorname{atan2}\left(\operatorname{Im}\widetilde{Z}_k, \, \operatorname{Re}\widetilde{Z}_k\right) = \operatorname{atan2}\left(G_k\sin e_k, \, G_k\cos e_k\right) \in (-\pi, \pi].
+    }
+\]
+注意：由于 $G_k = A_0 A_k > 0$ 在分子和分母中同比例缩放，$\operatorname{atan2}(G_k\sin e_k, G_k\cos e_k)$ \textbf{完全消除了光强振幅 $G_k$ 的波动影响}！只要光强不为零，振幅抖动不会影响相位误差 $e_k$ 的测量精度。
+\end{derivation}
+
+% ======================================================================
+\section{模块三：频谱无碰撞条件与复杂度严格界定}
+% ======================================================================
+
+在模块一的推导中，光电探测器输出信号里不仅有我们想要的“主参考—从通道拍频” $\Omega_k$，还有讨厌的“从通道—从通道互拍项” $|\Omega_i - \Omega_j|$。
+
+\subsection{为什么等间隔频率规划会彻底失败？（数值反例）}
+
+假设你有 $N-1 = 3$ 路从激光，如果你像普通通信 OFDM 那样随手设为等间隔频率：
+\[
+    \Omega_1 = 10\text{ MHz}, \quad \Omega_2 = 20\text{ MHz}, \quad \Omega_3 = 30\text{ MHz}.
+\]
+那么在光电探测器上，第 $1$ 路与第 $2$ 路之间的互拍频率是：
+\[
+    \Omega_2 - \Omega_1 = 20\text{ MHz} - 10\text{ MHz} = 10\text{ MHz} = \Omega_1 \,!
+\]
+第 $2$ 路与第 $3$ 路之间的互拍频率也是：
+\[
+    \Omega_3 - \Omega_2 = 30\text{ MHz} - 20\text{ MHz} = 10\text{ MHz} = \Omega_1 \,!
+\]
+这意味着，当你用 $\cos(10\text{ MHz} \cdot t)$ 去解调第 $1$ 路相位 $\phi_1 - \phi_0$ 时，解调器输出的 $Z_1$ 会变成：
+\[
+    Z_1 = A_0 A_1 e^{i(\phi_1 - \phi_0)} + A_1 A_2 e^{i(\phi_2 - \phi_1)} + A_2 A_3 e^{i(\phi_3 - \phi_2)}.
+\]
+这三个复数混在一起，第 $1$ 路的相位测量被彻底污染！
+
+\subsection{无碰撞频率规划的两种数学构造方法}
+
+为了保证在每个 $\Omega_k$ 处没有任何通道间互拍项落入低通滤波器带宽内，频率集合
+\[
+    \mathcal{F} = \{\Omega_1, \Omega_2, \dots, \Omega_{N-1}\}
+\]
+必须满足\textbf{集合不相交条件}：
+\[
+    \boxed{
+    \begin{gathered}
+        \Omega_k \notin \left\{ |\Omega_i - \Omega_j| \;\middle|\; 1 \le i < j \le N-1 \right\}, \\
+        \forall k \in \{1, \dots, N-1\}.
+    \end{gathered}
+    }
+\]
+工程上有两种严格的构造方法：
+\begin{enumerate}
+    \item \textbf{高频带整体平移法（最简单实用）}：
+    将所有从通道的频移 $\Omega_k$ 限制在一个高频区间 $[f_{\min}, f_{\max}]$ 内，且满足 $f_{\max} < 2 f_{\min}$。
+    \textbf{严格证明}：对于任意两个通道 $i, j$，它们的差频满足：
+    \[
+        |\Omega_i - \Omega_j| \le f_{\max} - f_{\min} < 2f_{\min} - f_{\min} = f_{\min}.
+    \]
+    也就是说，\textbf{所有的互拍差频全部落在 $f_{\min}$ 以下的低频区}，而所有的主参考有用拍频 $\Omega_k$ 全部位于 $[f_{\min}, f_{\max}]$ 的高频区！两者在频域上天然彻底隔离。例如取 $f_{\min} = 20\text{ MHz}$，各通道取 $21, 22, 23, \dots, 39\text{ MHz}$，所有差频最大只有 $18\text{ MHz} < 20\text{ MHz}$，绝对不会碰撞任何 $\Omega_k$！
+    \item \textbf{Sidon 集 / Golomb 尺法}：
+    若连互拍频率之间也不希望重叠，可选取组合数学中的 Golomb 尺（任意两个标记之差互不相同），再把整组标记平移到高频带。例如 6 通道取标记
+    \[
+        \{0, 1, 4, 10, 12, 17\}\ \text{MHz},
+    \]
+    整体加 $20\text{ MHz}$ 后得到
+    \[
+        \{\Omega_k\} = \{20, 21, 24, 30, 32, 37\}\ \text{MHz}.
+    \]
+    其任意差频不超过 $17\text{ MHz} < 20\text{ MHz}$，既不与任何 $\Omega_k$ 碰撞，通道间互拍频率也两两不同。
+\end{enumerate}
+
+\subsection{为什么是“每通道 \texorpdfstring{$O(1)$}{O(1)}、全系统 \texorpdfstring{$O(N)$}{O(N)}”，而不是总算力 \texorpdfstring{$O(1)$}{O(1)}？}
+
+\begin{itemize}
+    \item \textbf{传统矩阵求逆方法}：如果各通道测量存在耦合（$\bm{y} = M \bm{\phi}$），控制器必须计算逆矩阵乘法 $\bm{u} = M^{-1}\bm{y}$。矩阵向量乘法需要 $O(N^2)$ 次乘加运算，矩阵求逆需要 $O(N^3)$ 运算，且所有通道数据必须汇总到一个中央处理器。
+    \item \textbf{本方案（主参考 + 频分外差）}：
+    对于第 $k$ 个通道的锁相环（PLL），它只需要做三件事：(1) 乘以自己的 $\cos\Omega_k t, -\sin\Omega_k t$ 并低通滤波；(2) 做一次复数旋转和 $\operatorname{atan2}$；(3) 做一次积分反馈。无论系统总共有 $N=4$ 路还是 $N=1000$ 路，\textbf{第 $k$ 个通道自己的计算量是完全固定的常数，即单通道复杂度为 $O(1)$}。
+    \item \textbf{全系统总复杂度}：因为总共有 $N-1$ 个这样的独立通道并行工作，所以全系统消耗的硬件资源（逻辑门或模拟混频器总数）与通道数成正比，即\textbf{总复杂度为 $(N-1) \times O(1) = O(N)$}。这在控制工程中已经是理论最优的复杂度下界（因为你至少要输出 $N-1$ 个控制电压）。
+\end{itemize}
+
+% ======================================================================
+\section{模块四：李雅普诺夫稳定性证明与圆周 \texorpdfstring{$\Sone$}{S1} 上的拓扑障碍}
+% ======================================================================
+
+拿到了每一路的相对相位误差 $e_k$ 后，我们如何证明闭环系统一定能收敛到 $e_k = 0$？为什么平滑正弦鉴相器会卡在 $e_k = \pi$？本节给你补齐非线性控制理论中最核心的\textbf{李雅普诺夫直接法（Lyapunov's Direct Method）}。
+
+\begin{mathprep}[常微分方程、链式求导法则与李雅普诺夫稳定性定理]
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{时间导数记号}：在控制论中，变量上方加一个点表示对时间 $t$ 求一阶导数：
+    \[
+        \dot{x}(t) \triangleq \frac{\dd x(t)}{\dd t}.
+    \]
+    \item \textbf{一阶线性微分方程 $\dot{x} = -\gamma x$ 的求解（分离变量法）}：
+    \begin{align*}
+        \frac{\dd x}{\dd t} = -\gamma x
+        &\implies \frac{1}{x}\dd x = -\gamma \dd t
+        \implies \int_{x(0)}^{x(t)} \frac{1}{u}\dd u = \int_0^t -\gamma \dd \tau \\
+        &\implies \ln\left|\frac{x(t)}{x(0)}\right| = -\gamma t
+        \implies x(t) = x(0)e^{-\gamma t}.
+    \end{align*}
+    当 $\gamma > 0$ 且 $t \to \infty$ 时，$e^{-\gamma t} \to 0$，故 $x(t)$ 按指数速度衰减到 $0$。
+    \item \textbf{复合函数对时间的链式求导法则（Chain Rule）}：
+    假设能量函数 $V(e)$ 是误差 $e$ 的函数，而误差 $e(t)$ 又随时间 $t$ 变化。那么 $V$ 随时间的变化率 $\dot{V}$ 等于“$V$ 对 $e$ 的导数”乘以“$e$ 对时间 $t$ 的导数”：
+    \[
+        \dot{V}(t) = \frac{\dd}{\dd t} V(e(t)) = \frac{\partial V}{\partial e} \cdot \frac{\dd e}{\dd t} = \frac{\partial V}{\partial e} \dot{e}.
+    \]
+    如果有多个变量 $e_1, \dots, e_{N-1}$，则对每一项分别求偏导后相加：
+    \[
+        \dot{V}(t) = \sum_{k=1}^{N-1} \frac{\partial V}{\partial e_k} \dot{e}_k.
+    \]
+    \item \textbf{李雅普诺夫稳定性思想（碗与小球模型）}：
+    想象一个光滑的碗，碗底在原点 $e=0$。我们构造一个代表“碗的高度（势能）”的函数 $V(e)$，满足：
+    \begin{itemize}
+        \item \textbf{正定性}：$V(0) = 0$，且只要 $e \neq 0$ 就有 $V(e) > 0$（碗底最低，其余地方都比碗底高）。
+        \item \textbf{导数负定性}：沿着系统的运动轨迹，高度的变化率满足 $\dot{V}(e) < 0$（只要不在碗底，小球每时每刻都在往下滑）。
+    \end{itemize}
+    那么小球最终必然滑落并停在碗底 $e = 0$！这就是李雅普诺夫渐近稳定定理。
+\end{enumerate}
+\end{mathprep}
+
+\subsection{情况一：采用 \texorpdfstring{$\operatorname{atan2}$}{atan2} 线性相位误差时的独立闭环收敛证明}
+
+设铌酸锂移相器的相位与控制电压成正比：$\phi_k(t) = c V_k(t)$（$c$ 为半波电压相关的电光调制系数）。
+当主参考相位 $\phi_0$ 为常数（或缓变被前馈/高增益带宽抑制）时，误差 $e_k = \phi_k - \phi_0 - \theta_k^\star$ 对时间求导得 $\dot{e}_k = \dot{\phi}_k = c \dot{V}_k$。
+
+我们设计纯积分控制器：
+\[
+    \dot{V}_k(t) = -\frac{\gamma_k}{c} e_k(t), \qquad (\gamma_k > 0).
+\]
+代入 $\dot{e}_k = c \dot{V}_k$，系数 $c$ 完美约掉，得到第 $k$ 路的闭环动力学微分方程：
+\[
+    \dot{e}_k(t) = -\gamma_k e_k(t).
+\]
+
+\begin{proofbox}[定理 4.1：独立 PLL 闭环系统的指数收敛性]
+\textbf{命题}：在区间 $e_k(0) \in (-\pi, \pi)$ 内，上述闭环系统使所有通道误差 $e_k(t)$ 独立且按指数速率收敛至 $0$。
+
+\textbf{严格证明}：
+构造全系统总李雅普诺夫函数（所有通道误差平方和的一半）：
+\[
+    V(e_1, \dots, e_{N-1}) = \frac{1}{2}\sum_{k=1}^{N-1} e_k^2.
+\]
+\textbf{第一步（检验正定性）}：因为实数的平方非负，当且仅当所有 $e_k = 0$ 时 $V = 0$；只要有任何一路 $e_k \neq 0$，就有 $V > 0$。
+
+\textbf{第二步（计算时间导数 $\dot{V}$）}：利用多变量链式法则对时间 $t$ 求导：
+\begin{align*}
+    \dot{V} &= \frac{\dd}{\dd t}\left( \frac{1}{2}\sum_{k=1}^{N-1} e_k^2 \right) \\
+    &= \sum_{k=1}^{N-1} \left(\frac{1}{2} \cdot 2 e_k\right) \dot{e}_k \quad \text{（幂函数求导：$\frac{\dd}{\dd e_k}(e_k^2) = 2e_k$）}\\
+    &= \sum_{k=1}^{N-1} e_k \left(-\gamma_k e_k\right) \quad \text{（代入闭环方程 $\dot{e}_k = -\gamma_k e_k$）}\\
+    &= -\sum_{k=1}^{N-1} \gamma_k e_k^2.
+\end{align*}
+因为 $\gamma_k > 0$，只要存在任意 $e_k \neq 0$，必有 $\dot{V} < 0$。
+
+\textbf{第三步（求出显式指数衰减解）}：令 $\gamma_{\min} = \min_{k} \gamma_k > 0$，则：
+\[
+    \dot{V} = -\sum_{k=1}^{N-1} \gamma_k e_k^2 \le -\gamma_{\min} \sum_{k=1}^{N-1} e_k^2 = -2\gamma_{\min} V.
+\]
+由分离变量法解得 $V(t) \le V(0)e^{-2\gamma_{\min} t} \to 0$，且单通道解为 $e_k(t) = e_k(0)e^{-\gamma_k t} \to 0$。证毕。
+\end{proofbox}
+
+\subsection{情况二：为什么正弦鉴相器会有 \texorpdfstring{$e_k = \pi$}{e_k = pi} 的平衡点？（圆周拓扑障碍证明）}
+
+如果不用数字 $\operatorname{atan2}$，而是直接用模拟乘法器输出的 Q 路信号 $Y_k^{\text{rot}} \propto \sin e_k$ 作为反馈误差，闭环方程就变成了非线性微分方程：
+\[
+    \dot{e}_k = -\gamma_k \sin e_k, \qquad e_k \in \Sone \cong (-\pi, \pi].
+\]
+为什么说它不能保证“所有初值全局收敛”，而只能做到“几乎全局收敛（Almost-Global Convergence）”？我们来做最严格的证明。
+
+\begin{proofbox}[定理 4.2：正弦鉴相器在圆周 $\Sone$ 上的双平衡点与对跖点不稳定性]
+\textbf{命题}：系统 $\dot{e}_k = -\gamma_k \sin e_k$（$\gamma_k > 0$）在圆周 $(-\pi, \pi]$ 上有且仅有两个平衡点：$e_k = 0$ 是渐近稳定平衡点，而对跖点（Antipodal Point）$e_k = \pi$ 是不稳定平衡点。
+
+\textbf{严格证明}：
+
+\textbf{第一步：找出所有平衡点（Equilibrium Points）}
+平衡点定义为系统停止运动的位置，即时间导数 $\dot{e}_k = 0$ 的点：
+\[
+    -\gamma_k \sin e_k = 0 \implies \sin e_k = 0.
+\]
+在圆周区间 $e_k \in (-\pi, \pi]$ 上，满足 $\sin e_k = 0$ 的解有两个：
+\[
+    e_k^{(1)} = 0, \qquad e_k^{(2)} = \pi.
+\]
+这就是为什么如果初值恰好落在 $e_k(0) = \pi$，由于 $\sin\pi = 0$，反馈力为 $0$，系统会永远卡在 $\pi$ 处不动！
+
+\textbf{第二步：构造圆周上的光滑李雅普诺夫函数}
+在圆周上，我们不能再用 $V_k = \frac{1}{2}e_k^2$（因为它在 $e_k = -\pi$ 和 $e_k = +\pi$ 处导数不连续）。我们构造周期光滑势函数：
+\[
+    V_k(e_k) = 1 - \cos e_k.
+\]
+检验其性质：
+\begin{itemize}
+    \item 在目标点 $e_k = 0$ 处：$V_k(0) = 1 - \cos 0 = 1 - 1 = 0$（势能最低谷底）。
+    \item 在对跖点 $e_k = \pi$ 处：$V_k(\pi) = 1 - \cos\pi = 1 - (-1) = 2$（势能最高山峰）。
+    \item 对任意 $e_k \neq 0$，由于 $\cos e_k < 1$，均有 $V_k(e_k) > 0$。
+\end{itemize}
+利用链式法则求 $V_k(e_k)$ 对时间 $t$ 的导数（注意 $\frac{\dd}{\dd e_k}(1 - \cos e_k) = \sin e_k$）：
+\[
+    \dot{V}_k = \frac{\dd V_k}{\dd e_k}\dot{e}_k = (\sin e_k)(-\gamma_k \sin e_k) = -\gamma_k \sin^2 e_k \le 0.
+\]
+注意：当 $e_k = 0$ 或 $e_k = \pi$ 时，都有 $\dot{V}_k = 0$！
+
+\textbf{第三步：用泰勒展开（线性化）严格证明 $e_k = 0$ 稳定而 $e_k = \pi$ 不稳定}
+\begin{enumerate}
+    \item \textbf{在 $e_k = 0$ 附近}：设微小扰动为 $e_k = 0 + \delta$（$|\delta| \ll 1$）。由微积分泰勒展开 $\sin\delta \approx \delta$，代入原方程得：
+    \[
+        \dot{\delta} = -\gamma_k \sin\delta \approx -\gamma_k \delta.
+    \]
+    解为 $\delta(t) = \delta(0)e^{-\gamma_k t} \to 0$。扰动指数消失，故 $e_k = 0$ \textbf{局部指数稳定}。
+    \item \textbf{在 $e_k = \pi$ 附近}：设微小扰动为 $e_k = \pi + \delta$（$|\delta| \ll 1$）。对左端求导得 $\dot{e}_k = \dot{\delta}$；对右端利用三角诱导公式 $\sin(\pi + \delta) = -\sin\delta \approx -\delta$，代入原方程得：
+    \[
+        \dot{\delta} = -\gamma_k \sin(\pi + \delta) = -\gamma_k (-\sin\delta) \approx +\gamma_k \delta \,!
+    \]
+    注意前面的\textbf{正号}！解这个微分方程得到：
+    \[
+        \delta(t) = \delta(0)e^{+\gamma_k t}.
+    \]
+    由于指数是 $+\gamma_k t > 0$，只要初始位置偏离 $\pi$ 哪怕 $10^{-15}$ 弧度，$\delta(t)$ 就会按指数爆炸式增长，迅速逃离 $\pi$ 并滑向谷底 $e_k = 0$！
+\end{enumerate}
+由于单点集合 $\{\pi\}$ 在圆周 $\Sone$ 上的勒贝格测度（长度占比）为 $0$，除了这一个孤立点外的所有初值都会收敛到 $0$，因此在数学上称为\textbf{几乎全局渐近稳定（Almost-Global Asymptotic Stability）}。证毕。
+\end{proofbox}
+
+\subsection{为什么主通道公共相位漂移 \texorpdfstring{$\alpha(t)$}{alpha(t)} 完全不影响远场光强？}
+
+当选第 $0$ 路作为自由漂移的主通道时，锁相环锁住的是相对相位 $\phi_k(t) - \phi_0(t) = \theta_k^\star$，即：
+\[
+    \phi_k(t) = \phi_0(t) + \theta_k^\star.
+\]
+此时，空间任意位置 $\bm{r}$ 处的远场合成总电场为（设各路到 $\bm{r}$ 的空间传播相位因子为 $e^{i\psi_k(\bm{r})}$）：
+\begin{align*}
+    E(\bm{r}, t) &= \sum_{k=0}^{N-1} A_k e^{i\psi_k(\bm{r})} e^{i\phi_k(t)} \\
+    &= \sum_{k=0}^{N-1} A_k e^{i\psi_k(\bm{r})} e^{i[\phi_0(t) + \theta_k^\star]} \quad \text{（其中 } \theta_0^\star \triangleq 0\text{）}\\
+    &= e^{i\phi_0(t)} \sum_{k=0}^{N-1} A_k e^{i[\psi_k(\bm{r}) + \theta_k^\star]}. \quad \text{（将与下标 $k$ 无关的公共因子 $e^{i\phi_0(t)}$ 提到求和号外面！）}
+\end{align*}
+求远场光强分布 $|E(\bm{r}, t)|^2$：
+\[
+    |E(\bm{r}, t)|^2 = \left| e^{i\phi_0(t)} \right|^2 \cdot \left| \sum_{k=0}^{N-1} A_k e^{i[\psi_k(\bm{r}) + \theta_k^\star]} \right|^2 = 1 \cdot \left| \sum_{k=0}^{N-1} A_k e^{i[\psi_k(\bm{r}) + \theta_k^\star]} \right|^2.
+\]
+可以看到，随时间随机漂移的主通道相位 $\phi_0(t)$ 因为模方 $\left|e^{i\phi_0(t)}\right|^2 = 1$ 而\textbf{彻底消失}！这就是为什么无需外部绝对光学参考，仅靠单主通道就能完美实现动态光束赋形。
+
+% ======================================================================
+\section{模块五：图论、拉普拉斯矩阵 \texorpdfstring{$L_w$}{Lw} 与树型 Kuramoto 动力学证明}
+% ======================================================================
+
+在你的方案对比中，很大一部分篇幅讨论了\textbf{图关联矩阵 $B$、加权拉普拉斯矩阵 $L_w = BWB^T$、代数连通度 $\lambda_2(L_w) > 0$ 以及树型拓扑（Tree Topology）}。这一部分涉及矩阵分析和代数图论。我们用最直观的 $N=3$ 具体矩阵手算带你彻底攻克它！
+
+\begin{mathprep}[图关联矩阵 $B$、拉普拉斯矩阵 $L_w$ 与矩阵正定性符号 $\succeq$]
+假设系统有 $N$ 个激光通道（视为图的 $N$ 个顶点，编号 $1, \dots, N$），以及 $M$ 条局部干涉测量边（编号 $e = 1, \dots, M$）。
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{关联矩阵（Incidence Matrix）$B \in \R^{N \times M}$}：
+    矩阵 $B$ 有 $N$ 行（对应顶点）、$M$ 列（对应边）。如果第 $e$ 条有向边是从顶点 $i$ 指向顶点 $j$（记作 $e = (i, j)$），那么在 $B$ 的第 $e$ 列中：第 $i$ 行填 $+1$，第 $j$ 行填 $-1$，其余行全部填 $0$。
+    这样定义的好处是：当你用 $B^T$ 乘以相位列向量 $\bm{\phi} = [\phi_1, \dots, \phi_N]^T$ 时，第 $e$ 行的结果恰好就是这条边两端的相位差：
+    \[
+        (B^T \bm{\phi})_e = \phi_i - \phi_j.
+    \]
+    \item \textbf{边权重矩阵 $W \in \R^{M \times M}$}：
+    对角矩阵 $W = \diag(w_1, w_2, \dots, w_M)$，其中 $w_e > 0$ 是第 $e$ 条边的耦合强度。
+    \item \textbf{加权图拉普拉斯矩阵（Weighted Graph Laplacian）$L_w \in \R^{N \times N}$}：
+    定义为：
+    \[
+        L_w \triangleq B W B^T.
+    \]
+    对于任意实向量 $\bm{x} = [x_1, \dots, x_N]^T \in \R^N$，$L_w$ 的\textbf{二次型（Quadratic Form）}有一个极其重要的恒等式：
+    \[
+        \bm{x}^T L_w \bm{x} = \bm{x}^T B W B^T \bm{x} = (B^T \bm{x})^T W (B^T \bm{x}) = \sum_{e=(i,j)} w_e (x_i - x_j)^2 \ge 0.
+    \]
+    \item \textbf{拉普拉斯矩阵的特征值与 $\lambda_2(L_w)$}：
+    因为 $\bm{x}^T L_w \bm{x} \ge 0$ 对所有 $\bm{x}$ 成立，$L_w$ 是对称半正定矩阵，它的 $N$ 个特征值都是非负实数，按从小到大排列为：
+    \[
+        0 = \lambda_1(L_w) \le \lambda_2(L_w) \le \cdots \le \lambda_N(L_w).
+    \]
+    为什么最小特征值 $\lambda_1$ 永远等于 $0$？因为取全 $1$ 向量 $\bm{1} = [1, 1, \dots, 1]^T$（代表所有通道整体平移同一个常数相位），此时每条边上的差 $x_i - x_j = 1 - 1 = 0$，所以 $L_w \bm{1} = \bm{0} = 0 \cdot \bm{1}$。
+    \textbf{菲德勒定理（Fiedler's Theorem）}：当且仅当该图是\textbf{连通图}（没有任何孤立子图）时，第二小特征值严格大于零：
+    \[
+        \boxed{\lambda_2(L_w) > 0.}
+    \]
+    并且，对于任何消除了公共相位漂移的相对向量 $\bm{x}$（即满足 $\bm{x} \perp \bm{1}$，亦即 $\sum_{i=1}^N x_i = 0$），都有瑞利商下界（Rayleigh Quotient Bound）：
+    \[
+        \bm{x}^T L_w \bm{x} \ge \lambda_2(L_w) \|\bm{x}\|^2.
+    \]
+    \item \textbf{矩阵不等号 $\nabla^2 V \succeq \cos\gamma\, L_w$ 是什么意思？}
+    在矩阵分析中，$A \succeq B$（Loewner 偏序）\textbf{不是}指矩阵里每个元素比大小，而是指二次型比大小：对于任意向量 $\bm{x}$，都有 $\bm{x}^T A \bm{x} \ge \bm{x}^T B \bm{x}$。
+\end{enumerate}
+\end{mathprep}
+
+\subsection{为什么“树图”没有环路挫折（Cycle Frustration），而有环图会卡死？}
+
+我们用 $N=3$ 个节点的具体例子直接把矩阵写出来：
+
+\begin{derivation}[$N=3$ 树图 vs. 三角形环图的关联矩阵 $B$ 手算对比]
+\textbf{情形 A：树型图（无环，$N=3$ 个节点，$M=2$ 条边）}
+设边 $e_1 = (1, 2)$，边 $e_2 = (2, 3)$。关联矩阵 $B_{\text{tree}} \in \R^{3 \times 2}$ 为：
+\[
+    B_{\text{tree}} = \begin{bmatrix} +1 & 0 \\ -1 & +1 \\ 0 & -1 \end{bmatrix} \implies B_{\text{tree}}^T \bm{\phi} = \begin{bmatrix} +1 & -1 & 0 \\ 0 & +1 & -1 \end{bmatrix} \begin{bmatrix} \phi_1 \\ \phi_2 \\ \phi_3 \end{bmatrix} = \begin{bmatrix} \phi_1 - \phi_2 \\ \phi_2 - \phi_3 \end{bmatrix}.
+\]
+可以看到，$B_{\text{tree}}$ 的两列线性无关，秩为：
+\[
+    \rank(B_{\text{tree}}) = N - 1 = 2.
+\]
+因为边数 $M = 2$ 恰好等于矩阵的秩 $\rank(B) = 2$，所以对于\textbf{任意}你想要设定的目标边相位差 $\bm{\delta}^\star = [\delta_1^\star, \delta_2^\star]^T$，线性方程组 $B_{\text{tree}}^T \bm{\phi} = \bm{\delta}^\star$ 永远有精确解（例如令 $\phi_3 = 0$，则 $\phi_2 = \delta_2^\star$，$\phi_1 = \delta_1^\star + \delta_2^\star$）！这叫\textbf{无环几何一致性}。
+
+\medskip
+\textbf{情形 B：三角形环图（有环，$N=3$ 个节点，$M=3$ 条边）}
+增加第 $3$ 条闭合边 $e_3 = (3, 1)$。此时 $B_{\text{cycle}}^T \bm{\phi}$ 为：
+\[
+    B_{\text{cycle}}^T \bm{\phi} = \begin{bmatrix} \phi_1 - \phi_2 \\ \phi_2 - \phi_3 \\ \phi_3 - \phi_1 \end{bmatrix} = \begin{bmatrix} \delta_1^\star \\ \delta_2^\star \\ \delta_3^\star \end{bmatrix}.
+\]
+把左边三行加起来：$ (\phi_1 - \phi_2) + (\phi_2 - \phi_3) + (\phi_3 - \phi_1) \equiv 0 $！
+这意味着，如果右边的目标值不满足 $\delta_1^\star + \delta_2^\star + \delta_3^\star = 0 \pmod{2\pi}$（或由于测量噪声导致三者之和不为零），方程组\textbf{根本无解}，三个节点会在环路里互相拉扯、永远无法同时令 $q_e = 0$，这就是\textbf{环路挫折（Cycle Frustration）}。
+\end{derivation}
+
+\subsection{树型/图耦合系统的势函数梯度、Hessian 矩阵与局部指数收敛证明}
+
+设边误差向量为 $\bm{q} = B^T \bm{\phi} - \bm{\delta}^\star \in \R^M$，其中第 $e$ 个分量为 $q_e = \phi_i - \phi_j - \delta_e^\star$。定义向量正弦函数 $\sin\bm{q} \triangleq [\sin q_1, \dots, \sin q_M]^T$。
+
+\begin{proofbox}[定理 5.1：图耦合系统的 Hessian 下界与局部指数收敛]
+设势函数为：
+\[
+    V(\bm{\phi}) = \sum_{e=1}^M w_e (1 - \cos q_e), \qquad \text{其中 } \bm{q} = B^T \bm{\phi} - \bm{\delta}^\star.
+\]
+\textbf{第一部分：推导梯度 $\nabla_{\bm{\phi}} V = B W \sin\bm{q}$ 与李雅普诺夫导数 $\dot{V} \le 0$}
+
+先求 $V$ 对边误差分量 $q_e$ 的偏导数：
+\[
+    \frac{\partial V}{\partial q_e} = w_e \sin q_e \implies \nabla_{\bm{q}} V = W \sin\bm{q}.
+\]
+再由向量链式法则，因为 $\bm{q} = B^T \bm{\phi} - \bm{\delta}^\star$，所以 $\frac{\partial \bm{q}}{\partial \bm{\phi}} = B^T$，从而 $V$ 对节点相位 $\bm{\phi}$ 的梯度为：
+\[
+    \nabla_{\bm{\phi}} V = \left(\frac{\partial \bm{q}}{\partial \bm{\phi}}\right)^T \nabla_{\bm{q}} V = (B^T)^T W \sin\bm{q} = B W \sin\bm{q}.
+\]
+如果我们采用负梯度反馈控制律（其中 $K = K^T \succ 0$ 为正定增益矩阵，如 $K = \gamma I$）：
+\[
+    \dot{\bm{\phi}} = -K \nabla_{\bm{\phi}} V = -K B W \sin\bm{q},
+\]
+则势函数 $V$ 对时间的导数为：
+\[
+    \dot{V} = (\nabla_{\bm{\phi}} V)^T \dot{\bm{\phi}} = -(B W \sin\bm{q})^T K (B W \sin\bm{q}) \le 0.
+\]
+
+\textbf{第二部分：一步步推导二阶导数（Hessian 矩阵）$\nabla_{\bm{\phi}}^2 V \succeq \cos\gamma\, L_w$}
+
+对梯度 $\nabla_{\bm{\phi}} V = B W \sin\bm{q}$ 再对 $\bm{\phi}$ 求一次导数。
+注意 $\sin\bm{q}$ 对 $\bm{q}$ 的雅可比矩阵是对角矩阵 $\diag(\cos q_1, \dots, \cos q_M)$，而 $\bm{q}$ 对 $\bm{\phi}$ 的导数是 $B^T$。因此二阶导数（Hessian 矩阵）为：
+\[
+    \nabla_{\bm{\phi}}^2 V = B W \diag(\cos q_1, \dots, \cos q_M) B^T.
+\]
+现在假设所有边的相位误差都处在局部吸引域内：
+\[
+    |q_e| \le \gamma < \frac{\pi}{2}, \qquad \forall e = 1, \dots, M.
+\]
+因为在区间 $[-\gamma, \gamma] \subset (-\frac{\pi}{2}, \frac{\pi}{2})$ 上，余弦函数满足：
+\[
+    \cos q_e \ge \cos\gamma > 0.
+\]
+对于任意相对相位向量 $\bm{x} \in \R^N$（满足 $\bm{x} \perp \bm{1}$），我们来算 Hessian 矩阵的二次型：
+\begin{align*}
+    \bm{x}^T \left(\nabla_{\bm{\phi}}^2 V\right) \bm{x} &= \bm{x}^T B W \diag(\cos q_e) B^T \bm{x} \\
+    &= \sum_{e=1}^M w_e \cos(q_e) \left[(B^T \bm{x})_e\right]^2 \quad \text{（展开对角矩阵二次型）}\\
+    &\ge \sum_{e=1}^M w_e (\cos\gamma) \left[(B^T \bm{x})_e\right]^2 \quad \text{（利用 $\cos q_e \ge \cos\gamma$ 和平方项非负）}\\
+    &= \cos\gamma \sum_{e=1}^M w_e \left[(B^T \bm{x})_e\right]^2 \\
+    &= \cos\gamma \, \left(\bm{x}^T B W B^T \bm{x}\right) = \cos\gamma \, \bm{x}^T L_w \bm{x}.
+\end{align*}
+这就是文中公式 $\nabla^2 V \succeq \cos\gamma\, L_w$ 的完整由来！
+再结合连通图的菲德勒不等式 $\bm{x}^T L_w \bm{x} \ge \lambda_2(L_w)\|\bm{x}\|^2$，立即得到：
+\[
+    \boxed{
+    \bm{x}^T \left(\nabla_{\bm{\phi}}^2 V\right) \bm{x} \ge \left[\lambda_2(L_w)\cos\gamma\right] \|\bm{x}\|^2 > 0.
+    }
+\]
+这证明了：在 $|q_e| \le \gamma < \frac{\pi}{2}$ 的区域内，势函数 $V$ 在相对相位子空间上是\textbf{严格强凸（Strongly Convex）}的，系统以正比于 $\lambda_2(L_w)\cos\gamma$ 的速率实现\textbf{局部指数收敛}！但一旦 $|q_e| > \frac{\pi}{2}$，$\cos q_e$ 变成负数，凸性消失；且在 $q_e = \pi$ 处依然存在鞍点，故 $\lambda_2 > 0$ \textbf{不能}单独保证全局收敛。证毕。
+\end{proofbox}
+
+\subsection{附：存在固有频率失配 \texorpdfstring{$\bm{\omega}$}{omega} 时的同步条件 \texorpdfstring{$\|B^T L_w^\dagger \bm{\omega}\|_\infty < \sin\gamma$}{||B^T Lw^+ omega||_inf < sin(gamma)} 推导}
+
+如果各通道激光器存在固有频率漂移 $\bm{\omega} = [\omega_1, \dots, \omega_N]^T$（设已消去平均漂移，即 $\bm{1}^T \bm{\omega} = 0$），树型闭环方程变为：
+\[
+    \dot{\bm{\phi}} = \bm{\omega} - B W \sin\bm{q}.
+\]
+要存在锁相平衡态（$\dot{\bm{\phi}} = \bm{0}$），必须满足代数方程：
+\[
+    B W \sin\bm{q} = \bm{\omega}.
+\]
+对于树图（为简化记 $W = I$，或将权重并入 $L_w = B W B^T$），左乘 $B^T L_w^\dagger$（其中 $L_w^\dagger$ 是拉普拉斯矩阵的 Moore-Penrose 伪逆）。由于树图的列满秩性质，在无环流子空间上有投影恒等式 $\sin\bm{q} = B^T L_w^\dagger \bm{\omega}$。当单位权重 $W=I$ 时：
+\[
+    \sin\bm{q} = B^T L_w^\dagger \bm{\omega}.
+\]
+要使解 $\bm{q}$ 落在稳定吸引域 $|q_e| < \gamma < \frac{\pi}{2}$ 内，必须要求每一条边上的 $|\sin q_e| < \sin\gamma$。取向量无穷范数（即所有分量绝对值的最大值 $\|\bm{v}\|_\infty \triangleq \max_e |v_e|$），即得必要充分条件：
+\[
+    \boxed{
+    \left\| B^T L_w^\dagger \bm{\omega} \right\|_\infty < \sin\gamma.
+    }
+\]
+
+% ======================================================================
+\section{模块六：信息论边界——暗态不可观测性与 1-Bit SPGD 的局限}
+% ======================================================================
+
+\subsection{为什么“子通道暗态（\texorpdfstring{$A_k = 0$}{Ak = 0}）”无法靠任何图论或控制算法挽救？}
+
+从数学映射角度看，第 $k$ 路光场由复数 $E_k = A_k e^{i\phi_k}$ 描述。这是极坐标 $(A_k, \phi_k)$ 到直角坐标 $(x_k, y_k) = (A_k\cos\phi_k, A_k\sin\phi_k)$ 的映射。
+计算该映射的雅可比行列式（Jacobian Determinant）：
+\[
+    \det \frac{\partial(x_k, y_k)}{\partial(A_k, \phi_k)} = \det \begin{bmatrix} \cos\phi_k & -A_k\sin\phi_k \\ \sin\phi_k & A_k\cos\phi_k \end{bmatrix} = A_k(\cos^2\phi_k + \sin^2\phi_k) = A_k.
+\]
+当 $A_k = 0$ 时，雅可比行列式为 $0$（奇异点），复观测量 $Z_k = A_0 A_k e^{i(\phi_k - \phi_0)} \equiv 0$。此时无论 $\phi_k$ 取 $[0, 2\pi)$ 中的任何值，物理世界产生的光电信号都恒为 $0$。在控制理论中，这叫\textbf{可观测性秩判据失效（Observability Rank Loss）}；在统计估计中，这叫\textbf{费雪信息（Fisher Information）为零}。因此必须假设 $A_k \ge A_{\min} > 0$。
+
+\subsection{为什么 1-Bit CDMA-SPGD 不能作为任意目标相位锁定的严格解？}
+
+在随机并行梯度下降（SPGD）中，我们对相位施加微小抖动 $\delta\bm{\phi}$，测量标量目标函数 $J(\bm{\phi})$（例如远场单点光强）的变化量：
+\[
+    \Delta J \approx (\nabla_{\bm{\phi}} J)^T \delta\bm{\phi}.
+\]
+1-Bit 量化只保留符号 $\sgn(\Delta J) \in \{-1, +1\}$。这带来三重不可逾越的理论限制：
+\begin{enumerate}
+    \item \textbf{优化目标单一性}：SPGD 的本质是爬山法（寻找 $\nabla_{\bm{\phi}} J = \bm{0}$ 的局部极大值点）。如果只有一个物理单点探测器测量远场中心光强 $J(\bm{\phi}) = \left|\sum_k A_k e^{i\phi_k}\right|^2$，它的全局最大值永远对应 $\phi_1 = \phi_2 = \cdots = \phi_N$（同相合束）。如果不改变探测器空间位置或不在光学上预先加固定相位掩模，单点光强函数 $J(\bm{\phi})$ 的极值点根本不对应你想要的任意相位分布 $\bm{\theta}^\star$！
+    \item \textbf{驻点与鞍点死锁}：凡是满足 $\nabla_{\bm{\phi}} J(\bm{\phi}) = \bm{0}$ 的局部极小值或鞍点，都会使 $\Delta J = 0$，导致梯度算法停滞。
+    \item \textbf{收敛速度与维度灾难}：即使没有噪声，通过随机投影估计 $N$ 维梯度方向所需的迭代步数随 $N$ 线性增长，带宽按 $O(1/N)$ 急剧下降，远不如外差 PLL 的全并行独立锁定。
+\end{enumerate}
+
+% ======================================================================
+\newpage
+\section{自测练习：检验你是否真正掌握了全部推导}
+% ======================================================================
+
+合上讲义，尝试在草稿纸上独立完成以下三道推导题（如果能不看正文写出来，说明你已经彻底吃透了这套数学体系）：
+
+\begin{enumerate}[label=\textbf{练习 \arabic*：}]
+    \item \textbf{外差解调符号检验}：如果在模块二的 Q 路解调中，你不小心把本振写成了 $+\sin(\Omega_k t)$ 而不是 $-\sin(\Omega_k t)$，请用积化和差公式推导此时低通滤波后的 $Y_k$ 等于什么？这会导致 $\operatorname{atan2}(Y_k, X_k)$ 测出的相位差变成什么？进而对负反馈闭环 $\dot{\phi}_k = -\gamma_k e_k$ 造成什么灾难性后果？（提示：正反馈发散！）
+    \item \textbf{频率碰撞检验}：假设 $N=4$（即 $1$ 路主参考 + $3$ 路从通道），从通道频移选为 $\Omega_1 = 12\text{ MHz}$、$\Omega_2 = 15\text{ MHz}$、$\Omega_3 = 19\text{ MHz}$。请写出所有通道间互拍差频 $|\Omega_i - \Omega_j|$ 的集合，并判断这组频率是否满足无碰撞条件。
+    \item \textbf{圆周李雅普诺夫函数检验}：对于闭环方程 $\dot{e}_k = -\gamma_k \sin e_k$，计算 $V_k(e_k) = 1 - \cos e_k$ 在 $e_k = 0$ 和 $e_k = \pi$ 处的二阶导数 $\frac{\dd^2 V_k}{\dd e_k^2}$，从凹凸性角度解释为什么 $0$ 是稳定谷底而 $\pi$ 是不稳定山峰。
+\end{enumerate}
+
+\end{document}
