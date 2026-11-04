@@ -22,6 +22,14 @@ export const site = {
  */
 export const resources = [
   {
+    title: '渐近分析的代数方法：从 Newton 多边形到 Borel 求和',
+    summary:
+      '写给熟悉概形、层上同调与范畴论但分析基础薄弱的读者：以 Hardy 域与赋值环重述渐近比较，用 Newton 多边形统一代数分支与 ODE 主项，系统讲解 Laplace／驻相／最速下降、Airy 方程的 Stokes 扇形、Borel 求和与再生，并完整推导 Stirling、Bessel 与 Airy 渐近式。',
+    file: '/files/渐近分析的代数方法_刘昊岳.pdf',
+    date: '2026-11-04',
+    pages: 62,
+  },
+  {
     title: '相干光束合成与闭环相位锁定：从零基础到严格数学证明的完整推导讲义',
     summary:
       '从复数模方、积化和差与 I/Q 解调出发，逐行推导频谱无碰撞条件、李雅普诺夫稳定性、圆周拓扑障碍与图拉普拉斯二次型，最终给出树型网络局部指数收敛与 1-Bit SPGD 的信息论边界。',
