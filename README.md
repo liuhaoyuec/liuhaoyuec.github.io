@@ -27,11 +27,29 @@ npm run preview # 本地预览 dist/
 | 学术成果 | `src/content/publications/<文件名>.md` |
 | 笔记 | `src/content/notes/<文件名>.md`（文件名即网址） |
 | 首页「讲义与资料」 | 文件放 `public/files/`，条目写 `src/data/site.ts` 的 `resources` 数组 |
+| 「经典著作与翻译」页 | 文件放 `public/files/classics/`，条目写 `src/data/classics.ts` |
 | 配色 / 版式 / 字体 | `src/styles/global.css` 顶部变量区 |
 | 首页背景图 | `public/images/hero-night*.webp`；原始图放 `design/hero-source.png`，见下文「换背景图」 |
 
 约定：占位文字统一是 `［待补充：……］`（`grep -rn 待补充 src/` 可全部找出）；
 草稿把 frontmatter 的 `draft` 设为 `true` 就不会发布；笔记正文支持 Markdown 表格、代码块、图片。
+
+## 经典著作与翻译
+
+「经典著作与翻译」页（`/classics`）收录十二篇通信学科奠基论文的中文精读译注。数据结构在
+`src/data/classics.ts`，文件布局：
+
+```
+public/files/classics/
+├── 通信学科奠基论文_中文精读译注本.pdf   # 全书（97 页）
+└── translations/                        # 每篇译注单行本（5–9 页）
+    ├── shannon1948-zh.pdf
+    └── ...
+```
+
+- 新增篇目：把译注 PDF 放进 `translations/`，在 `classicPapers` 数组里追加一条，`id` 会作为锚点。
+- `fullText` 表示译述是否依据原文全文：`true` 标注「据全文译述」，`false` 标注「据摘要与公开资料译述」。
+- 本站不托管原文 PDF，原文统一通过 DOI 前往出版机构获取，避免公开传播第三方版权作品。
 
 ## 换背景图
 

@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site, resources } from '../data/site';
+import { classicPapers } from '../data/classics';
 import { withBase } from '../lib/url';
 
 /** 极小的模糊占位图，主背景加载完成前先铺一层夜色光晕 */
@@ -78,10 +79,11 @@ const motes = Array.from({ length: 18 }, (_, i) => ({
             <span class="btn-arrow" aria-hidden="true">→</span>
           </a>
           <a class="btn btn-ghost" href="#resources">浏览讲义</a>
+          <a class="btn btn-ghost" href={withBase('/classics')}>经典译注</a>
         </div>
         <p class="hero-note">
           <span class="pulse-dot" aria-hidden="true"></span>
-          {resources.length} 份讲义与资料 · 持续更新
+          {resources.length} 份讲义与资料 · {classicPapers.length} 篇经典译注 · 持续更新
         </p>
       </div>
     </div>
@@ -127,6 +129,50 @@ const motes = Array.from({ length: 18 }, (_, i) => ({
       </div>
     </section>
   )}
+
+  <section class="archive classics-teaser" id="classics" aria-labelledby="classics-title">
+    <div class="container">
+      <header class="archive-head">
+        <div>
+          <p class="eyebrow">Classics · 经典著作</p>
+          <h2 id="classics-title">经典著作与翻译</h2>
+        </div>
+        <p class="archive-count">
+          <strong>{classicPapers.length}</strong>
+          <span>篇奠基论文<br />中文精读译注</span>
+        </p>
+      </header>
+
+      <div class="classics-teaser-grid">
+        <a class="teaser-book reveal" href={withBase('/classics')}>
+          <span class="teaser-book-cover" aria-hidden="true">
+            <span>通信学科</span>
+            <span>奠基论文</span>
+            <i>中文精读译注本</i>
+          </span>
+          <span class="teaser-book-copy">
+            <strong>从 Shannon 1948 到 Marzetta 2010</strong>
+            <span>
+              十二篇改变通信史的开山之作，逐节译述、公式重排、术语对照；每篇均可单独下载译注，
+              原文经 DOI 前往出版机构获取。
+            </span>
+            <span class="teaser-book-cta">进入经典著作与翻译 →</span>
+          </span>
+        </a>
+
+        <ul class="teaser-list reveal" style="--i:1">
+          {classicPapers.map((paper) => (
+            <li>
+              <a href={`${withBase('/classics')}#${paper.id}`}>
+                <span>{paper.year}</span>
+                {paper.shortTitle}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <script>

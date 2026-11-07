@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { classicBook, classicPapers } from '../data/classics';
+import { withBase } from '../lib/url';
+
+const fullTextCount = classicPapers.filter((paper) => paper.fullText).length;
+const totalTranslationPages = classicPapers.reduce((sum, paper) => sum + paper.pages, 0);
+/** 书名拆成主标题与副标题，手机端断成两行，避免「·」悬在行首 */
+const [bookTitleMain, bookTitleSub] = classicBook.title.split('·');
+---
+
+<BaseLayout
+  title="经典著作与翻译"
+  description="通信学科十二篇奠基论文的中文精读译注：从 Shannon 1948 到 Marzetta 2010，逐节译述、公式重排、术语对照；原文可通过 DOI 前往出版机构获取。"
+>
+  <div class="classics-page">
+    <div class="container">
+      <header class="classics-hero reveal">
+        <p class="eyebrow">Classics · 经典著作</p>
+        <h1>经典著作与翻译</h1>
+        <p class="classics-lede">
+          通信学科今天的教科书，已经把许多概念磨平成了「定义—定理—习题」。这里回到十二篇开山之作的原文脉络：
+          它们不是在一个既有框架里做得更好，而是定义了后来者必须使用的框架。每一篇都配有中文精读译注，
+          可按篇单独阅读，也可下载全书。
+        </p>
+        <dl class="classics-stats">
+          <div>
+            <dd>{classicPapers.length}</dd>
+            <dt>篇奠基论文</dt>
+          </div>
+          <div>
+            <dd>{classicBook.pages}</dd>
+            <dt>页全书译注</dt>
+          </div>
+          <div>
+            <dd>{fullTextCount}</dd>
+            <dt>篇据全文译述</dt>
+          </div>
+          <div>
+            <dd>{totalTranslationPages}</dd>
+            <dt>页单篇译注</dt>
+          </div>
+        </dl>
+      </header>
+
+      <section class="book-showcase reveal" aria-labelledby="book-title">
+        <div class="book-cover" aria-hidden="true">
+          <span class="book-cover-kicker">From Shannon to Massive MIMO</span>
+          <span class="book-cover-title">通信学科<br />奠基论文</span>
+          <span class="book-cover-sub">中文精读译注本</span>
+          <span class="book-cover-authors">
+            香农 · 汉明 · 加拉格尔 · 维特比<br />
+            贝鲁 · 阿里坎 · 张 · 克莱因罗克<br />
+            福斯基尼 · 特拉塔尔 · 马泽塔 · 阿尔斯韦德
+          </span>
+        </div>
+
+        <div class="book-info">
+          <p class="book-eyebrow">全书 · {classicBook.pages} 页 · 更新于 {classicBook.updated}</p>
+          <h2 id="book-title">
+            {bookTitleMain}<span class="book-title-sub">{bookTitleSub}</span>
+          </h2>
+          <p class="book-subtitle">{classicBook.subtitle}</p>
+          <p class="book-desc">{classicBook.description}</p>
+          <ul class="book-points">
+            <li>文献档案：作者、出处、卷期页码与 DOI</li>
+            <li>摘要全译 + 逐节译述：保留论证骨架，公式全部重排</li>
+            <li>结果与影响、术语对照、译者注：标明版本差异与易误读处</li>
+          </ul>
+          <div class="book-actions">
+            <a class="btn btn-primary" href={withBase(classicBook.file)} target="_blank" rel="noopener">
+              下载全书 PDF
+              <span class="btn-arrow" aria-hidden="true">→</span>
+            </a>
+            <a class="btn btn-ghost" href="#papers">浏览十二篇篇目</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="classics-archive" id="papers" aria-labelledby="papers-title">
+        <header class="archive-head">
+          <div>
+            <p class="eyebrow">Papers · 篇目</p>
+            <h2 id="papers-title">十二篇奠基论文</h2>
+          </div>
+          <p class="archive-count">
+            <strong>{classicPapers.length}</strong>
+            <span>篇原文脉络<br />按发表年份排列</span>
+          </p>
+        </header>
+
+        <ol class="classic-list">
+          {classicPapers.map((paper, index) => (
+            <li class="classic-item reveal" id={paper.id} style={`--i:${index}`}>
+              <div class="classic-rail" aria-hidden="true">
+                <span class="classic-year">{paper.year}</span>
+                <span class="classic-index">{String(index + 1).padStart(2, '0')}</span>
+              </div>
+
+              <article class="classic-body">
+                <div class="classic-tags">
+                  <span class="tag">{paper.field}</span>
+                  {paper.fullText ? (
+                    <span class="tag tag-ok">据全文译述</span>
+                  ) : (
+                    <span class="tag tag-note">据摘要与公开资料译述</span>
+                  )}
+                </div>
+
+                <h3>{paper.zhTitle}</h3>
+                <p class="classic-en">{paper.enTitle}</p>
+                <p class="classic-meta">
+                  {paper.authors} · <cite>{paper.venue}</cite>
+                </p>
+                <p class="classic-summary">{paper.summary}</p>
+
+                <div class="classic-links">
+                  <a
+                    class="chip chip-primary"
+                    href={withBase(paper.translation)}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    中文译注 · {paper.pages} 页
+                  </a>
+                  <a
+                    class="chip chip-doi"
+                    href={`https://doi.org/${paper.doi}`}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    原文 DOI ↗
+                  </a>
+                </div>
+              </article>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <aside class="classics-note reveal">
+        <p>
+          <strong>版权与使用说明：</strong>
+          十二篇论文的著作权归原作者及原出版机构所有，本站不托管原文 PDF，原文请通过 DOI 前往出版机构获取。
+          中文部分为学习笔记性质的译述与评论，不是出版社授权的逐字译本；正式引用请以原文为准。
+        </p>
+        <p>
+          其中 Viterbi 1967、Berrou 1993、Kleinrock–Tobagi 1975、Marzetta 2010 与 Ahlswede 等 2000
+          的出版社全文位于付费墙后，相应章节依据公开摘要与领域共识译述，章首均已明确标注。
+        </p>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealTargets = document.querySelectorAll('.reveal');
+
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+    );
+    revealTargets.forEach((el) => observer.observe(el));
+  } else {
+    revealTargets.forEach((el) => el.classList.add('is-visible'));
+  }
+</script>
